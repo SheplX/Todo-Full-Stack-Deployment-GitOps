@@ -36,26 +36,23 @@ jobs:
       -
         name: Scan Backend Image
         if: ${{ github.event_path == 'backend/**' }}
-        uses: aquasecurity/trivy-action@v0.3.0
+        uses: aquasecurity/trivy-action@master
         with:
           image-ref: $BACKEND_IMAGE
           format: table
       -    
         name: Scan Frontend Image
         if: ${{ github.event_path == 'frontend/**' }}
-        uses: aquasecurity/trivy-action@v0.3.0
+        uses: aquasecurity/trivy-action@master
         with:
           image-ref: $FRONTEND_IMAGE
-          format: table
+          format: sarif
       -
         name: Upload scan results to Security Tab
         if: ${{ github.event_path == 'backend/**' || github.event_path == 'frontend/**' }}
-        uses: security-tap/upload-action@v1
+        uses: github/codeql-action/upload-sarif@v2
         with:
-          data-file: results.json
-          file-format: trivy
-          api-url: ${{ secrets.SECURITY_TAP_API_URL }}
-          api-key: ${{ secrets.SECURITY_TAP_API_KEY }}
+          sarif_file: 'trivy-results.sarif'
       -
         name: Log Into Registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
