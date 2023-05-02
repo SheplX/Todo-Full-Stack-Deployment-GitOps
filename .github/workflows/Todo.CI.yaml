@@ -26,21 +26,21 @@ jobs:
         name: Checkout master
         uses: actions/checkout@main
       -
-        name: Get changed files
-        id: changed_files
+        name: Determine changed directory
+        id: determine_directory
         run: |
-          if [[ $GITHUB_EVENT_NAME == 'push' ]]; then
-            echo "::set-output name=files::$(git diff-tree --no-commit-id --name-only -r ${{ github.event.before }} ${{ github.event.after }})"
-          else
-            echo "::set-output name=files::$(git diff-tree --no-commit-id --name-only -r ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})"
+          if [[ -n $(git diff --name-only HEAD~1..HEAD backend) ]]; then
+            echo "::set-output name=directory::backend"
+          elif [[ -n $(git diff --name-only HEAD~1..HEAD frontend) ]]; then
+            echo "::set-output name=directory::frontend"
           fi
       -
         name: Build Backend Image
-        if: contains(steps.changed_files.outputs.files, 'backend/')
+        if: contains(steps.determine_directory.outputs.directory, 'backend')
         run: cd backend/ && docker build . --file Dockerfile --tag $BACKEND_IMAGE
       -
         name: Build Frontend Image
-        if: contains(steps.changed_files.outputs.files, 'frontend/')
+        if: contains(steps.determine_directory.outputs.directory, 'frontend')
         run: cd frontend/ && docker build . --file Dockerfile --tag $FRONTEND_IMAGE
       -
         name: Scan Backend Image
