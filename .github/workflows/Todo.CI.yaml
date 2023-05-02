@@ -31,7 +31,7 @@ jobs:
       -
         name: Show modified files
         run: |
-          echo "Modified files: ${github.event.head_commit.modified}"
+          echo "Modified files: ${{ github.event.head_commit.modified }}"
       -
         name: Build Backend Image
         if: contains(github.event.head_commit.modified, 'backend')
