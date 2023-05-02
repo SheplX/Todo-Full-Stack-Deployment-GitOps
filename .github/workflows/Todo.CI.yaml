@@ -31,7 +31,7 @@ jobs:
         if: ${{ github.event_path == 'backend' }}
       -
         name: Build Frontend Image
-        run: cd frontend/ && docker build . --file Dockerfile --tag $FRONTEND_IMAGE
+        run: cd frontend/events && docker build . --file Dockerfile --tag $FRONTEND_IMAGE
         if: ${{ github.event_path == 'frontend' }}
       -
         name: Scan Backend Image
