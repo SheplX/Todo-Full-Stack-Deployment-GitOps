@@ -14,14 +14,15 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Build backend Docker image
-        if: ${{ startsWith(github.event_path, 'backend/') }}
+        if: ${{ startsWith(github.event.head_commit.modified, 'backend/') }}
         working-directory: ./backend
         run: docker build -t my-backend-image .
 
       - name: Build frontend Docker image
-        if: ${{ startsWith(github.event_path, 'frontend/') }}
+        if: ${{ startsWith(github.event.head_commit.modified, 'frontend/') }}
         working-directory: ./frontend
         run: docker build -t my-frontend-image .
+
       -
         name: Scan Backend Image
         if: ${{ github.event_path == 'backend/**' }}
