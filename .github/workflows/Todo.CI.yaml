@@ -1,6 +1,9 @@
 name: Build Docker images
 on:
   push:
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
     branches:
       - main
 
