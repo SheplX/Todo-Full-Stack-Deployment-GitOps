@@ -22,35 +22,29 @@ env:
   FRONTEND_IMAGE: frontend
 
 jobs:
-  build:
+  build_backend_image:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Build backend image
+        working-directory: backend
+        run: docker build -t $BACKEND_IMAGE .
+  build_frontend_image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Build frontend image
+        working-directory: frontend
+        run: docker build -t $FRONTEND_IMAGE .
       -
-        name: Checkout master
-        uses: actions/checkout@main
-      -
-        name: Build Image
-        run: cd backend && docker build . --file Dockerfile --tag $BACKEND_IMAGE
-      -
-        name: Log Into Registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
-      -
-        name: Push Image Tag
-        run: |
-          IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$BACKEND_IMAGE
-          # Change all uppercase to lowercase
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-          # Strip git ref prefix from version
-          #VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-          VERSION=$GITHUB_SHA
-          # Strip "v" prefix from tag name
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
-          # Use Docker `latest` tag convention
-          echo IMAGE_ID=$IMAGE_ID
-          #echo VERSION=${GITHUB_REF##*/}
-          echo VERSION=$GITHUB_SHA
-          docker tag $BACKEND_IMAGE $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
+        name: Scan Backend Image
+        if: ${{ github.event_path == 'backend/**' }}
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: $BACKEND_IMAGE
+          format: table
       # -    
       #   name: Scan Frontend Image
       #   if: ${{ github.event_path == 'frontend/**' }}
