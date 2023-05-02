@@ -28,11 +28,11 @@ jobs:
       -
         name: Build Backend Image
         run: cd backend/ && docker build . --file Dockerfile --tag $BACKEND_IMAGE
-        if: ${{ github.event_path == 'backend' }}
+        if: ${{ github.event.paths == 'backend/**' }}
       -
         name: Build Frontend Image
         run: cd frontend/events && docker build . --file Dockerfile --tag $FRONTEND_IMAGE
-        if: ${{ github.event_path == 'frontend' }}
+        if: ${{ github.event.paths == 'frontend/**' }}
       -
         name: Scan Backend Image
         if: ${{ github.event_path == 'backend/**' }}
