@@ -32,14 +32,20 @@ jobs:
         working-directory: backend/
         run: |
           docker build -t my-backend .
-          echo "List all the files that have changed: ${{ steps.backend.outputs.all_changed_files }}"
+
+      - name: List all the files that have changed in Backend folder
+        if: steps.backend.outputs.any_changed == 'true'
+        run: ${{ steps.backend.outputs.all_changed_files }}
 
       - name: Build frontend Docker image
         if: steps.frontend.outputs.any_changed == 'true'
         working-directory: frontend/
         run: |
           docker build -t my-frontend-image .
-          echo "List all the files that have changed: ${{ steps.frontend.outputs.all_changed_files }}"
+
+      - name: List all the files that have changed in Frontend folder
+        if: steps.backend.outputs.any_changed == 'true'
+        run: ${{ steps.frontend.outputs.all_changed_files }}
 
       # - name: Scan Backend Image
       #   if: ${{ github.event_path == 'backend/**' }}
