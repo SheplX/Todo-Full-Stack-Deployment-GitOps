@@ -26,12 +26,21 @@ jobs:
         name: Checkout master
         uses: actions/checkout@main
       -
+        name: Get changed files
+        id: changed_files
+        run: |
+          if [[ $GITHUB_EVENT_NAME == 'push' ]]; then
+            echo "::set-output name=files::$(git diff-tree --no-commit-id --name-only -r ${{ github.event.before }} ${{ github.event.after }})"
+          else
+            echo "::set-output name=files::$(git diff-tree --no-commit-id --name-only -r ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})"
+          fi
+      -
         name: Build Backend Image
-        if: contains(github.event.head_commit.modified, 'backend/')
+        if: contains(steps.changed_files.outputs.files, 'backend/')
         run: cd backend/ && docker build . --file Dockerfile --tag $BACKEND_IMAGE
       -
         name: Build Frontend Image
-        if: contains(github.event.head_commit.modified, 'frontend/')
+        if: contains(steps.changed_files.outputs.files, 'frontend/')
         run: cd frontend/ && docker build . --file Dockerfile --tag $FRONTEND_IMAGE
       -
         name: Scan Backend Image
@@ -85,7 +94,8 @@ jobs:
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: Nextdoor/helm-set-image-tag-action@main
         with:
-          values_files: .backend.tag
+          values_files: charts/values.yaml
+          tag_keys: .backend.tag
           tag_value: ${{ github.sha }}
           commit_branch: ${{ github.ref }}
           commit_tag: ${{ github.ref }}-chart
@@ -95,7 +105,8 @@ jobs:
         if: ${{ github.ref == 'refs/heads/dev' }}
         uses: Nextdoor/helm-set-image-tag-action@main
         with:
-          values_files: .backend.tag          
+          values_files: charts/values.yaml
+          tag_keys: .backend.tag          
           tag_value: ${{ github.sha }}
           commit_branch: ${{ github.ref }}
           commit_tag: ${{ github.ref }}-chart
@@ -105,7 +116,8 @@ jobs:
         if: ${{ github.ref == 'refs/heads/release' }}
         uses: Nextdoor/helm-set-image-tag-action@main
         with:
-          values_files: .backend.tag          
+          values_files: charts/values.yaml
+          tag_keys: .backend.tag          
           tag_value: ${{ github.sha }}
           commit_branch: ${{ github.ref }}
           commit_tag: ${{ github.ref }}-chart
