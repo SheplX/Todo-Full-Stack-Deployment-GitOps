@@ -26,21 +26,12 @@ jobs:
         name: Checkout master
         uses: actions/checkout@main
       -
-        name: Determine changed directory
-        id: determine_directory
-        run: |
-          if [[ -n $(git diff --name-only HEAD~1..HEAD backend) ]]; then
-            echo "::set-output name=directory::backend"
-          elif [[ -n $(git diff --name-only HEAD~1..HEAD frontend) ]]; then
-            echo "::set-output name=directory::frontend"
-          fi
-      -
         name: Build Backend Image
-        if: contains(steps.determine_directory.outputs.directory, 'backend')
+        if: contains(github.event.head_commit.modified, 'backend')
         run: cd backend/ && docker build . --file Dockerfile --tag $BACKEND_IMAGE
       -
         name: Build Frontend Image
-        if: contains(steps.determine_directory.outputs.directory, 'frontend')
+        if: contains(github.event.head_commit.modified, 'frontend')
         run: cd frontend/ && docker build . --file Dockerfile --tag $FRONTEND_IMAGE
       -
         name: Scan Backend Image
