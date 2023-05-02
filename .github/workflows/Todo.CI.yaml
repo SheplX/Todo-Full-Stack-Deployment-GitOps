@@ -30,7 +30,7 @@ jobs:
         uses: actions/checkout@main
       -
         name: Build Image
-        run: cd app/ && docker build . --file Dockerfile --tag $BACKEND_IMAGE
+        run: cd backend && docker build . --file Dockerfile --tag $BACKEND_IMAGE
       -
         name: Log Into Registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
