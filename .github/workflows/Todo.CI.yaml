@@ -12,22 +12,38 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Get changed files in the backend folder
+        id: backend
+        uses: tj-actions/changed-files@v35
+        with:
+          files: backend/**  # Alternatively using: `docs/**` or `docs`
+
+      - name: Get changed files in the frontend folder
+        id: frontend
+        uses: tj-actions/changed-files@v35
+        with:
+          files: frontend/**  # Alternatively using: `docs/**` or `docs`
+
       - name: Build backend Docker image
-        if: ${{ github.event.head_commit.modified | map('startswith', 'backend/') | any }}
-        working-directory: ./backend
-        run: docker build -t my-backend-image .
+        if: steps.backend.outputs.any_changed == 'true'
+        working-directory: backend/
+        run: |
+          docker build -t my-backend-image .
+          echo "List all the files that have changed: ${{ steps.changed-files-specific.outputs.all_changed_files }}"
 
       - name: Build frontend Docker image
-        if: ${{ github.event.head_commit.modified | map('startswith', 'frontend/') | any }}
-        working-directory: ./frontend
-        run: docker build -t my-frontend-image .
-      -
-        name: Scan Backend Image
-        if: ${{ github.event_path == 'backend/**' }}
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: $BACKEND_IMAGE
-          format: table
+        if: steps.frontend.outputs.any_changed == 'true'
+        working-directory: frontend/
+        run: |
+          docker build -t my-frontend-image .
+          echo "List all the files that have changed: ${{ steps.changed-files-specific.outputs.all_changed_files }}"
+
+      # - name: Scan Backend Image
+      #   if: ${{ github.event_path == 'backend/**' }}
+      #   uses: aquasecurity/trivy-action@master
+      #   with:
+      #     image-ref: $BACKEND_IMAGE
+      #     format: table
       # -    
       #   name: Scan Frontend Image
       #   if: ${{ github.event_path == 'frontend/**' }}
