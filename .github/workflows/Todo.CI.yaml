@@ -27,12 +27,12 @@ jobs:
         uses: actions/checkout@main
       -
         name: Build Backend Image
+        if: contains(github.event.head_commit.modified, 'backend/')
         run: cd backend/ && docker build . --file Dockerfile --tag $BACKEND_IMAGE
-        if: ${{ github.event.paths == 'backend/**' }}
       -
         name: Build Frontend Image
-        run: cd frontend/events && docker build . --file Dockerfile --tag $FRONTEND_IMAGE
-        if: ${{ github.event.paths == 'frontend/**' }}
+        if: contains(github.event.head_commit.modified, 'frontend/')
+        run: cd frontend/ && docker build . --file Dockerfile --tag $FRONTEND_IMAGE
       -
         name: Scan Backend Image
         if: ${{ github.event_path == 'backend/**' }}
