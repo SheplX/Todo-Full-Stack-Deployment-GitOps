@@ -22,20 +22,17 @@ env:
   FRONTEND_IMAGE: frontend
 
 jobs:
-  build_backend_image:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Build backend image
+        if: ${{ startsWith(github.event_path, 'backend/') }}
         working-directory: backend
         run: docker build -t $BACKEND_IMAGE .
-  build_frontend_image:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
       - name: Build frontend image
+        if: ${{ startsWith(github.event_path, 'frontend/') }}
         working-directory: frontend
         run: docker build -t $FRONTEND_IMAGE .
       -
