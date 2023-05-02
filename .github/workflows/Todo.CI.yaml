@@ -1,40 +1,27 @@
-name: TODO-CI
-
+name: Build Docker images
 on:
   push:
-    branches:
-      - main
-      - dev
-      - release
     paths:
       - 'backend/**'
       - 'frontend/**'
-  pull_request:
-    branches:
-      - main
-      - dev
-    paths:
-      - 'backend/**'
-      - 'frontend/**'
-
-env:
-  BACKEND_IMAGE: backend
-  FRONTEND_IMAGE: frontend
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Build backend image
+
+      - name: Build backend Docker image
         if: ${{ startsWith(github.event_path, 'backend/') }}
-        working-directory: backend
-        run: docker build -t $BACKEND_IMAGE .
-      - name: Build frontend image
+        working-directory: ./backend
+        run: docker build -t my-backend-image .
+
+      - name: Build frontend Docker image
         if: ${{ startsWith(github.event_path, 'frontend/') }}
-        working-directory: frontend
-        run: docker build -t $FRONTEND_IMAGE .
+        working-directory: ./frontend
+        run: docker build -t my-frontend-image .
       -
         name: Scan Backend Image
         if: ${{ github.event_path == 'backend/**' }}
