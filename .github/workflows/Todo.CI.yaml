@@ -16,7 +16,7 @@ on:
 
 env:
   BACKEND_IMAGE: backend
-  FRONTEND_IAMGE: frontend
+  FRONTEND_IMAGE: frontend
 
 jobs:
   build:
