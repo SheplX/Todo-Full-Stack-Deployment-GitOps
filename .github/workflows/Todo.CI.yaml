@@ -49,76 +49,76 @@ jobs:
         with:
           image-ref: $BACKEND_IMAGE
           format: table
-      -    
-        name: Scan Frontend Image
-        if: ${{ github.event_path == 'frontend/**' }}
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: $FRONTEND_IMAGE
-          format: sarif
-      -
-        name: Upload scan results to Security Tab
-        if: ${{ github.event_path == 'backend/**' || github.event_path == 'frontend/**' }}
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: 'trivy-results.sarif'
-      -
-        name: Log Into Registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
-      -
-        name: Push Backend Image Tag
-        run: |
-          if [[ ${{ github.event_path }} == "backend" ]]; then
-            IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$BACKEND_IMAGE
-            IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-            VERSION=$GITHUB_SHA
-            echo IMAGE_ID=$IMAGE_ID
-            echo VERSION=$GITHUB_SHA
-            docker tag $BACKEND_IMAGE $IMAGE_ID:$VERSION
-            docker push $IMAGE_ID:$VERSION
-          fi
-      -
-        name: Push Frontend Image Tag
-        run: |
-          if [[ ${{ github.event_path }} == "frontend" ]]; then
-            IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$FRONTEND_IMAGE
-            IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-            VERSION=$GITHUB_SHA
-            echo IMAGE_ID=$IMAGE_ID
-            echo VERSION=$GITHUB_SHA
-            docker tag $FRONTEND_IMAGE $IMAGE_ID:$VERSION
-            docker push $IMAGE_ID:$VERSION
-          fi  
-      -        
-        name: 'Updating Helm Charts values on branch main'
-        if: ${{ github.ref == 'refs/heads/main' }}
-        uses: Nextdoor/helm-set-image-tag-action@main
-        with:
-          values_files: charts/values.yaml
-          tag_keys: .backend.tag
-          tag_value: ${{ github.sha }}
-          commit_branch: ${{ github.ref }}
-          commit_tag: ${{ github.ref }}-chart
-          commit_message: Tag ${{ github.sha }} Updated On Charts !
-      -   
-        name: 'Updating Helm Charts values on branch dev'
-        if: ${{ github.ref == 'refs/heads/dev' }}
-        uses: Nextdoor/helm-set-image-tag-action@main
-        with:
-          values_files: charts/values.yaml
-          tag_keys: .backend.tag          
-          tag_value: ${{ github.sha }}
-          commit_branch: ${{ github.ref }}
-          commit_tag: ${{ github.ref }}-chart
-          commit_message: Tag ${{ github.sha }} Updated On Charts !
-      -   
-        name: 'Updating Helm Charts values on branch release'
-        if: ${{ github.ref == 'refs/heads/release' }}
-        uses: Nextdoor/helm-set-image-tag-action@main
-        with:
-          values_files: charts/values.yaml
-          tag_keys: .backend.tag          
-          tag_value: ${{ github.sha }}
-          commit_branch: ${{ github.ref }}
-          commit_tag: ${{ github.ref }}-chart
-          commit_message: Tag ${{ github.sha }} Updated On Charts !
+      # -    
+      #   name: Scan Frontend Image
+      #   if: ${{ github.event_path == 'frontend/**' }}
+      #   uses: aquasecurity/trivy-action@master
+      #   with:
+      #     image-ref: $FRONTEND_IMAGE
+      #     format: sarif
+      # -
+      #   name: Upload scan results to Security Tab
+      #   if: ${{ github.event_path == 'backend/**' || github.event_path == 'frontend/**' }}
+      #   uses: github/codeql-action/upload-sarif@v2
+      #   with:
+      #     sarif_file: 'trivy-results.sarif'
+      # -
+      #   name: Log Into Registry
+      #   run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+      # -
+      #   name: Push Backend Image Tag
+      #   run: |
+      #     if [[ ${{ github.event_path }} == "backend" ]]; then
+      #       IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$BACKEND_IMAGE
+      #       IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+      #       VERSION=$GITHUB_SHA
+      #       echo IMAGE_ID=$IMAGE_ID
+      #       echo VERSION=$GITHUB_SHA
+      #       docker tag $BACKEND_IMAGE $IMAGE_ID:$VERSION
+      #       docker push $IMAGE_ID:$VERSION
+      #     fi
+      # -
+      #   name: Push Frontend Image Tag
+      #   run: |
+      #     if [[ ${{ github.event_path }} == "frontend" ]]; then
+      #       IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$FRONTEND_IMAGE
+      #       IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+      #       VERSION=$GITHUB_SHA
+      #       echo IMAGE_ID=$IMAGE_ID
+      #       echo VERSION=$GITHUB_SHA
+      #       docker tag $FRONTEND_IMAGE $IMAGE_ID:$VERSION
+      #       docker push $IMAGE_ID:$VERSION
+      #     fi  
+      # -        
+      #   name: 'Updating Helm Charts values on branch main'
+      #   if: ${{ github.ref == 'refs/heads/main' }}
+      #   uses: Nextdoor/helm-set-image-tag-action@main
+      #   with:
+      #     values_files: charts/values.yaml
+      #     tag_keys: .backend.tag
+      #     tag_value: ${{ github.sha }}
+      #     commit_branch: ${{ github.ref }}
+      #     commit_tag: ${{ github.ref }}-chart
+      #     commit_message: Tag ${{ github.sha }} Updated On Charts !
+      # -   
+      #   name: 'Updating Helm Charts values on branch dev'
+      #   if: ${{ github.ref == 'refs/heads/dev' }}
+      #   uses: Nextdoor/helm-set-image-tag-action@main
+      #   with:
+      #     values_files: charts/values.yaml
+      #     tag_keys: .backend.tag          
+      #     tag_value: ${{ github.sha }}
+      #     commit_branch: ${{ github.ref }}
+      #     commit_tag: ${{ github.ref }}-chart
+      #     commit_message: Tag ${{ github.sha }} Updated On Charts !
+      # -   
+      #   name: 'Updating Helm Charts values on branch release'
+      #   if: ${{ github.ref == 'refs/heads/release' }}
+      #   uses: Nextdoor/helm-set-image-tag-action@main
+      #   with:
+      #     values_files: charts/values.yaml
+      #     tag_keys: .backend.tag          
+      #     tag_value: ${{ github.sha }}
+      #     commit_branch: ${{ github.ref }}
+      #     commit_tag: ${{ github.ref }}-chart
+      #     commit_message: Tag ${{ github.sha }} Updated On Charts !
