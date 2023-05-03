@@ -69,7 +69,7 @@ jobs:
         with:
           image-ref: ${{ env.BACKEND_IMAGE }}
           format: sarif
-          output: 'console'
+          github-pr-comment: true
           exit-code: '1'
           ignore-unfixed: true
           vuln-type: 'os,library'
