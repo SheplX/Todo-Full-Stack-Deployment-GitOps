@@ -6,91 +6,125 @@ on:
       - 'frontend/**'
     branches:
       - main
+  pull_request:
+    branches:
+      - main
+      - dev
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+
+env:
+  BACKEND_IMAGE: backend
+  FRONTEND_IMAGE: frontend
 
 jobs:
-  build:
+  SCAN_CHANGES:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Get changed files in the backend folder
+      - name: Get changed files in the Backend folder
         id: backend
         uses: tj-actions/changed-files@v35
         with:
           files: backend/**
-        run: |
-          echo "List all the files that have changed in the backend folder: ${{ steps.backend.outputs.all_changed_files }}"
 
-      - name: Get changed files in the frontend folder
+      - name: Backend changed files
+        if: steps.backend.outputs.any_changed == 'true'
+        run: |
+          echo "List all the files that have changed: ${{ steps.backend.outputs.all_changed_files }}"
+
+      - name: Get changed files in the Frontend folder
         id: frontend
         uses: tj-actions/changed-files@v35
         with:
           files: frontend/**
-        run: |
-          echo "List all the files that have changed in the frontend folder: ${{ steps.frontend.outputs.all_changed_files }}"
 
+      - name: Frontend changed files
+        if: steps.frontend.outputs.any_changed == 'true'
+        run: |
+          echo "List all the files that have changed: ${{ steps.frontend.outputs.all_changed_files }}"
+
+  IMAGE_BUILD:
+    runs-on: ubuntu-latest
+    steps:
       - name: Build backend Docker image
         if: steps.backend.outputs.any_changed == 'true'
         working-directory: backend/
-        run: |
-          docker build -t my-backend .
-          echo "List all the files that have changed: ${{ steps.backend.outputs.all_changed_files }}"
+        run: docker build -t $BACKEND_IMAGE .
 
       - name: Build frontend Docker image
         if: steps.frontend.outputs.any_changed == 'true'
         working-directory: frontend/
-        run: |
-          docker build -t my-frontend-image .
-          echo "List all the files that have changed: ${{ steps.frontend.outputs.all_changed_files }}"
+        run: docker build -t $FRONTEND_IMAGE .
 
-      # - name: Scan Backend Image
-      #   if: ${{ github.event_path == 'backend/**' }}
-      #   uses: aquasecurity/trivy-action@master
-      #   with:
-      #     image-ref: $BACKEND_IMAGE
-      #     format: table
-      # -    
-      #   name: Scan Frontend Image
-      #   if: ${{ github.event_path == 'frontend/**' }}
-      #   uses: aquasecurity/trivy-action@master
-      #   with:
-      #     image-ref: $FRONTEND_IMAGE
-      #     format: sarif
-      # -
-      #   name: Upload scan results to Security Tab
-      #   if: ${{ github.event_path == 'backend/**' || github.event_path == 'frontend/**' }}
-      #   uses: github/codeql-action/upload-sarif@v2
-      #   with:
-      #     sarif_file: 'trivy-results.sarif'
-      # -
-      #   name: Log Into Registry
-      #   run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
-      # -
-      #   name: Push Backend Image Tag
-      #   run: |
-      #     if [[ ${{ github.event_path }} == "backend" ]]; then
-      #       IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$BACKEND_IMAGE
-      #       IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-      #       VERSION=$GITHUB_SHA
-      #       echo IMAGE_ID=$IMAGE_ID
-      #       echo VERSION=$GITHUB_SHA
-      #       docker tag $BACKEND_IMAGE $IMAGE_ID:$VERSION
-      #       docker push $IMAGE_ID:$VERSION
-      #     fi
-      # -
-      #   name: Push Frontend Image Tag
-      #   run: |
-      #     if [[ ${{ github.event_path }} == "frontend" ]]; then
-      #       IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$FRONTEND_IMAGE
-      #       IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-      #       VERSION=$GITHUB_SHA
-      #       echo IMAGE_ID=$IMAGE_ID
-      #       echo VERSION=$GITHUB_SHA
-      #       docker tag $FRONTEND_IMAGE $IMAGE_ID:$VERSION
-      #       docker push $IMAGE_ID:$VERSION
-      #     fi  
+  IMAGE_SCAN:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Scan Backend Image
+        if: steps.backend.outputs.any_changed == 'true'
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: $BACKEND_IMAGE
+          format: sarif
+          output: 'backend-results.sarif'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Scan Frontend Image
+        if: steps.frontend.outputs.any_changed == 'true'
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: $FRONTEND_IMAGE
+          format: sarif
+          output: 'frontend-results.sarif'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Backend scan results to security tab
+        if: steps.backend.outputs.any_changed == 'true'
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'backend-results.sarif'
+
+      - name: Upload Backend scan results to security tab
+        if: steps.backend.outputs.any_changed == 'true'
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'frontend-results.sarif'
+
+      - name: Log Into Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+
+      - name: Push Backend Image Tag
+        run: |
+          if [[ steps.backend.outputs.any_changed == 'true' ]]; then
+            IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$BACKEND_IMAGE
+            IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+            VERSION=$GITHUB_SHA
+            echo IMAGE_ID=$IMAGE_ID
+            echo VERSION=$GITHUB_SHA
+            docker tag $BACKEND_IMAGE $IMAGE_ID:$VERSION
+            docker push $IMAGE_ID:$VERSION
+          fi
+      -
+        name: Push Frontend Image Tag
+        run: |
+          if [[ steps.frontend.outputs.any_changed == 'true' ]]; then
+            IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$FRONTEND_IMAGE
+            IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+            VERSION=$GITHUB_SHA
+            echo IMAGE_ID=$IMAGE_ID
+            echo VERSION=$GITHUB_SHA
+            docker tag $FRONTEND_IMAGE $IMAGE_ID:$VERSION
+            docker push $IMAGE_ID:$VERSION
+          fi  
       # -        
       #   name: 'Updating Helm Charts values on branch main'
       #   if: ${{ github.ref == 'refs/heads/main' }}
