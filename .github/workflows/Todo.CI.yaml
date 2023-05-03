@@ -72,7 +72,7 @@ jobs:
           exit-code: '1'
           ignore-unfixed: true
           vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
+          severity: 'CRITICAL,HIGH,MEDIUM'
 
       - name: Scan Frontend Image
         if: steps.frontend.outputs.any_changed == 'true'
@@ -84,7 +84,7 @@ jobs:
           exit-code: '1'
           ignore-unfixed: true
           vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
+          severity: 'CRITICAL,HIGH,MEDIUM'
 
       # - name: Print Backend scan results
       #   if: steps.backend.outputs.any_changed == 'true'
