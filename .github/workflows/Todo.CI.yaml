@@ -31,16 +31,16 @@ jobs:
         with:
           files: backend/**
 
-      - name: Backend changed files
-        if: steps.backend.outputs.any_changed == 'true'
-        run: |
-          echo "List all the files that have changed: ${{ steps.backend.outputs.all_changed_files }}"
-
       - name: Get changed files in the Frontend folder
         id: frontend
         uses: tj-actions/changed-files@v35
         with:
           files: frontend/**
+
+      - name: Backend changed files
+        if: steps.backend.outputs.any_changed == 'true'
+        run: |
+          echo "List all the files that have changed: ${{ steps.backend.outputs.all_changed_files }}"
 
       - name: Frontend changed files
         if: steps.frontend.outputs.any_changed == 'true'
@@ -87,17 +87,15 @@ jobs:
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
 
-      - name: Upload Backend scan results to security tab
+      - name: Print Backend scan results
         if: steps.backend.outputs.any_changed == 'true'
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: 'backend-results.sarif'
+        run: cat backend-results.sarif
 
-      - name: Upload Backend scan results to security tab
-        if: steps.backend.outputs.any_changed == 'true'
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: 'frontend-results.sarif'
+      # - name: Upload frontend scan results to security tab
+      #   if: steps.frontend.outputs.any_changed == 'true'
+      #   uses: github/codeql-action/upload-sarif@v2
+      #   with:
+      #     sarif_file: 'frontend-results.sarif'
 
       - name: Log Into Registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
