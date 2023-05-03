@@ -1,4 +1,4 @@
-name: Build Docker images
+name: TODO-CI
 on:
   push:
     paths:
@@ -19,33 +19,31 @@ jobs:
         id: backend
         uses: tj-actions/changed-files@v35
         with:
-          files: backend/**  # Alternatively using: `docs/**` or `docs`
+          files: backend/**
+        run: |
+          echo "List all the files that have changed in the backend folder: ${{ steps.backend.outputs.all_changed_files }}"
 
       - name: Get changed files in the frontend folder
         id: frontend
         uses: tj-actions/changed-files@v35
         with:
-          files: frontend/**  # Alternatively using: `docs/**` or `docs`
+          files: frontend/**
+        run: |
+          echo "List all the files that have changed in the frontend folder: ${{ steps.frontend.outputs.all_changed_files }}"
 
       - name: Build backend Docker image
         if: steps.backend.outputs.any_changed == 'true'
         working-directory: backend/
         run: |
           docker build -t my-backend .
-
-      - name: List all the files that have changed in Backend folder
-        if: steps.backend.outputs.any_changed == 'true'
-        run: ${{ steps.backend.outputs.all_changed_files }}
+          echo "List all the files that have changed: ${{ steps.backend.outputs.all_changed_files }}"
 
       - name: Build frontend Docker image
         if: steps.frontend.outputs.any_changed == 'true'
         working-directory: frontend/
         run: |
           docker build -t my-frontend-image .
-
-      - name: List all the files that have changed in Frontend folder
-        if: steps.backend.outputs.any_changed == 'true'
-        run: ${{ steps.frontend.outputs.all_changed_files }}
+          echo "List all the files that have changed: ${{ steps.frontend.outputs.all_changed_files }}"
 
       # - name: Scan Backend Image
       #   if: ${{ github.event_path == 'backend/**' }}
@@ -126,3 +124,44 @@ jobs:
       #     commit_branch: ${{ github.ref }}
       #     commit_tag: ${{ github.ref }}-chart
       #     commit_message: Tag ${{ github.sha }} Updated On Charts !
+
+
+
+
+
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest  # windows-latest | macos-latest
+#     name: Test changed-files
+#     steps:
+#       - uses: actions/checkout@v3
+#         with:
+#           fetch-depth: 0  # OR "2" -> To retrieve the preceding commit.
+
+#       # Example 1
+#       - name: Get changed files
+#         id: changed-files
+#         uses: tj-actions/changed-files@v35
+        
+#         # To compare changes between the current commit and the last pushed remote commit set `since_last_remote_commit: true`. e.g
+#         # with:
+#         #   since_last_remote_commit: true 
+
+#       - name: List all changed files
+#         run: |
+#           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+#             echo "$file was changed"
+#           done
+
+#       # Example 2
+#       - name: Get changed files in the docs folder
+#         id: changed-files-specific
+#         uses: tj-actions/changed-files@v35
+#         with:
+#           files: docs/*.{js,html}  # Alternatively using: `docs/**` or `docs`
+
+#       - name: Run step if any file(s) in the docs folder change
+#         if: steps.changed-files-specific.outputs.any_changed == 'true'
+#         run: |
+#           echo "One or more files in the docs folder has changed."
+#           echo "List all the files that have changed: ${{ steps.changed-files-specific.outputs.all_changed_files }}"
