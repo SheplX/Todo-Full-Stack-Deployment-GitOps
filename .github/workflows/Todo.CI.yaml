@@ -69,7 +69,7 @@ jobs:
         with:
           image-ref: ${{ env.BACKEND_IMAGE }}
           format: sarif
-          output: 'backend-results.sarif'
+          output: 'console'
           exit-code: '1'
           ignore-unfixed: true
           vuln-type: 'os,library'
@@ -81,15 +81,15 @@ jobs:
         with:
           image-ref: ${{ env.FRONTEND_IMAGE }}
           format: sarif
-          output: 'frontend-results.sarif'
+          output: 'console'
           exit-code: '1'
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
 
-      - name: Print Backend scan results
-        if: steps.backend.outputs.any_changed == 'true'
-        run: cat backend-results.sarif
+      # - name: Print Backend scan results
+      #   if: steps.backend.outputs.any_changed == 'true'
+      #   run: cat backend-results.sarif
 
       # - name: Upload frontend scan results to security tab
       #   if: steps.frontend.outputs.any_changed == 'true'
