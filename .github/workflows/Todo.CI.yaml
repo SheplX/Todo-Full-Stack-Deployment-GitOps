@@ -62,14 +62,14 @@ jobs:
 
       - name: Scan Images
         if: steps.backend.outputs.any_changed == 'true' || steps.frontend.outputs.any_changed == 'true'
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: ${{ env.BACKEND_IMAGE }} ${{ env.FRONTEND_IMAGE }}
-          format: 'table'
-          exit-code: '1'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH,MEDIUM'
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin v0.20.0
+          if [ ${{ steps.backend.outputs.any_changed }} == 'true' ]; then
+            trivy --image ${{ env.BACKEND_IMAGE }} --format table --output console --exit-code 1 --ignore-unfixed --vuln-type os,library --severity CRITICAL,HIGH,MEDIUM
+          fi
+          if [ ${{ steps.frontend.outputs.any_changed }} == 'true' ]; then
+            trivy --image ${{ env.FRONTEND_IMAGE }} --format sarif --output console --exit-code 1 --ignore-unfixed --vuln-type os,library --severity CRITICAL,HIGH,MEDIUM
+          fi
 
   # IMAGE_SCAN:
   #   runs-on: ubuntu-latest
