@@ -60,31 +60,42 @@ jobs:
         working-directory: frontend/
         run: docker build -t $FRONTEND_IMAGE .
 
-  # IMAGE_SCAN:
-  #   runs-on: ubuntu-latest
-  #   steps:
-      - name: Scan Backend Image
-        if: steps.backend.outputs.any_changed == 'true'
+      - name: Scan Images
+        if: steps.backend.outputs.any_changed == 'true' || steps.frontend.outputs.any_changed == 'true'
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ env.BACKEND_IMAGE }}
+          image-ref: ${{ env.BACKEND_IMAGE }} ${{ env.FRONTEND_IMAGE }}
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH,MEDIUM'
 
-      - name: Scan Frontend Image
-        if: steps.frontend.outputs.any_changed == 'true'
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: ${{ env.FRONTEND_IMAGE }}
-          format: sarif
-          output: 'console'
-          exit-code: '1'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH,MEDIUM'
+  # IMAGE_SCAN:
+  #   runs-on: ubuntu-latest
+  #   steps:
+      # - name: Scan Backend Image
+      #   if: steps.backend.outputs.any_changed == 'true'
+      #   uses: aquasecurity/trivy-action@master
+      #   with:
+      #     image-ref: ${{ env.BACKEND_IMAGE }}
+      #     format: 'table'
+      #     exit-code: '1'
+      #     ignore-unfixed: true
+      #     vuln-type: 'os,library'
+      #     severity: 'CRITICAL,HIGH,MEDIUM'
+
+      # - name: Scan Frontend Image
+      #   if: steps.frontend.outputs.any_changed == 'true'
+      #   uses: aquasecurity/trivy-action@master
+      #   with:
+      #     image-ref: ${{ env.FRONTEND_IMAGE }}
+      #     format: sarif
+      #     output: 'console'
+      #     exit-code: '1'
+      #     ignore-unfixed: true
+      #     vuln-type: 'os,library'
+      #     severity: 'CRITICAL,HIGH,MEDIUM'
 
       # - name: Print Backend scan results
       #   if: steps.backend.outputs.any_changed == 'true'
