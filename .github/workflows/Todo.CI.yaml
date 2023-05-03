@@ -47,9 +47,9 @@ jobs:
         run: |
           echo "List all the files that have changed: ${{ steps.frontend.outputs.all_changed_files }}"
 
-  IMAGE_BUILD:
-    runs-on: ubuntu-latest
-    steps:
+  # IMAGE_BUILD:
+  #   runs-on: ubuntu-latest
+  #   steps:
       - name: Build backend Docker image
         if: steps.backend.outputs.any_changed == 'true'
         working-directory: backend/
@@ -60,9 +60,9 @@ jobs:
         working-directory: frontend/
         run: docker build -t $FRONTEND_IMAGE .
 
-  IMAGE_SCAN:
-    runs-on: ubuntu-latest
-    steps:
+  # IMAGE_SCAN:
+  #   runs-on: ubuntu-latest
+  #   steps:
       - name: Scan Backend Image
         if: steps.backend.outputs.any_changed == 'true'
         uses: aquasecurity/trivy-action@master
