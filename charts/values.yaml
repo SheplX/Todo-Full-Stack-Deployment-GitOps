@@ -4,7 +4,7 @@ ingress:
         - todo.devops.com
 backend:
   repository: docker.pkg.github.com/Todo-Full-Stack-Deployment/sheplx/backend
-  tag: 4a6017082001334ed42d9221fc7e3e8d9532341b
+  tag: ab122931de4976ea0b510f7a0ff25c8ff9a2432e
 frontend:
   repository: docker.pkg.github.com/Todo-Full-Stack-Deployment/sheplx/frontend
   tag: c8dd64edf28cdfa5c7c8b95b581e2549857a5ee8
