@@ -72,7 +72,7 @@ jobs:
           tag_value: ${{ github.sha }}
           commit_branch: ${{ github.ref }}
           commit_tag: Todo-Main-Charts
-          commit_message: "Tag Backend:$(echo '${{ github.sha }}' | cut -c1-7) Pumped"
+          commit_message: "Tag Backend:${{ github.sha:0:7 }} Pumped"
           
       - name: Update Helm Chart Values at Stage
         if: ${{ github.ref == 'refs/heads/stage'}} 
@@ -83,7 +83,7 @@ jobs:
           tag_value: ${{ github.sha }}
           commit_branch: ${{ github.ref }}
           commit_tag: Todo-Stage-Charts
-          commit_message: "Tag Backend:$(echo '${{ github.sha }}' | cut -c1-7) Pumped"
+          commit_message: "Tag Backend:${{ github.sha:0:7 }} Pumped"
 
       - name: Update Helm Chart Values at Dev
         if: ${{ github.ref == 'refs/heads/dev'}} 
@@ -94,7 +94,7 @@ jobs:
           tag_value: ${{ github.sha }}
           commit_branch: ${{ github.ref }}
           commit_tag: Todo-Dev-Charts
-          commit_message: "Tag Backend:$(echo '${{ github.sha }}' | cut -c1-7) Pumped"
+          commit_message: "Tag Backend:${{ github.sha:0:7 }} Pumped"
 
       # - name: 'Updating Helm Charts values on branch main'
       #   if: ${{ github.ref == 'refs/heads/main' }}
