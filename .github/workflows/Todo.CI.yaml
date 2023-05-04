@@ -60,52 +60,31 @@ jobs:
         working-directory: frontend/
         run: docker build -t $FRONTEND_IMAGE .
 
-      - name: Scan Images
-        if: steps.backend.outputs.any_changed == 'true' || steps.frontend.outputs.any_changed == 'true'
-        run: |
-          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin v0.20.0
-          if [ ${{ steps.backend.outputs.any_changed }} == 'true' ]; then
-            trivy --image ${{ env.BACKEND_IMAGE }} --format table --output console --exit-code 1 --ignore-unfixed --vuln-type os,library --severity CRITICAL,HIGH,MEDIUM
-          fi
-          if [ ${{ steps.frontend.outputs.any_changed }} == 'true' ]; then
-            trivy --image ${{ env.FRONTEND_IMAGE }} --format sarif --output console --exit-code 1 --ignore-unfixed --vuln-type os,library --severity CRITICAL,HIGH,MEDIUM
-          fi
-
   # IMAGE_SCAN:
   #   runs-on: ubuntu-latest
   #   steps:
-      # - name: Scan Backend Image
-      #   if: steps.backend.outputs.any_changed == 'true'
-      #   uses: aquasecurity/trivy-action@master
-      #   with:
-      #     image-ref: ${{ env.BACKEND_IMAGE }}
-      #     format: 'table'
-      #     exit-code: '1'
-      #     ignore-unfixed: true
-      #     vuln-type: 'os,library'
-      #     severity: 'CRITICAL,HIGH,MEDIUM'
+      - name: Scan Backend Image
+        if: steps.backend.outputs.any_changed == 'true'
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.BACKEND_IMAGE }}
+          format: 'table'
+          exit-code: '0'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH,MEDIUM'
 
-      # - name: Scan Frontend Image
-      #   if: steps.frontend.outputs.any_changed == 'true'
-      #   uses: aquasecurity/trivy-action@master
-      #   with:
-      #     image-ref: ${{ env.FRONTEND_IMAGE }}
-      #     format: sarif
-      #     output: 'console'
-      #     exit-code: '1'
-      #     ignore-unfixed: true
-      #     vuln-type: 'os,library'
-      #     severity: 'CRITICAL,HIGH,MEDIUM'
-
-      # - name: Print Backend scan results
-      #   if: steps.backend.outputs.any_changed == 'true'
-      #   run: cat backend-results.sarif
-
-      # - name: Upload frontend scan results to security tab
-      #   if: steps.frontend.outputs.any_changed == 'true'
-      #   uses: github/codeql-action/upload-sarif@v2
-      #   with:
-      #     sarif_file: 'frontend-results.sarif'
+      - name: Scan Frontend Image
+        if: steps.frontend.outputs.any_changed == 'true'
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.FRONTEND_IMAGE }}
+          format: sarif
+          output: 'console'
+          exit-code: '0'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH,MEDIUM'
 
       - name: Log Into Registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
@@ -121,9 +100,6 @@ jobs:
             docker tag $BACKEND_IMAGE $IMAGE_ID:$VERSION
             docker push $IMAGE_ID:$VERSION
           fi
-      -
-        name: Push Frontend Image Tag
-        run: |
           if [[ steps.frontend.outputs.any_changed == 'true' ]]; then
             IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$FRONTEND_IMAGE
             IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
@@ -133,8 +109,31 @@ jobs:
             docker tag $FRONTEND_IMAGE $IMAGE_ID:$VERSION
             docker push $IMAGE_ID:$VERSION
           fi  
-      # -        
-      #   name: 'Updating Helm Charts values on branch main'
+
+      # - name: Push Frontend Image Tag
+      #   run: |
+      #     if [[ steps.frontend.outputs.any_changed == 'true' ]]; then
+      #       IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$FRONTEND_IMAGE
+      #       IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+      #       VERSION=$GITHUB_SHA
+      #       echo IMAGE_ID=$IMAGE_ID
+      #       echo VERSION=$GITHUB_SHA
+      #       docker tag $FRONTEND_IMAGE $IMAGE_ID:$VERSION
+      #       docker push $IMAGE_ID:$VERSION
+      #     fi  
+
+      - name: Backend and Frontend Helm charts update
+        if: steps.backend.outputs.any_changed == 'true' || steps.frontend.outputs.any_changed == 'true'
+        uses: Nextdoor/helm-set-image-tag-action@main
+        with:
+          values_files: charts/values.yaml
+          tag_keys: .backend.tag,.frontend.tag          
+          tag_value: ${{ github.sha }}
+          commit_branch: ${{ github.ref }}
+          commit_tag: ${{ github.ref }}-chart
+          commit_message: Tag ${{ github.sha }} Updated On Charts !
+
+      # - name: 'Updating Helm Charts values on branch main'
       #   if: ${{ github.ref == 'refs/heads/main' }}
       #   uses: Nextdoor/helm-set-image-tag-action@main
       #   with:
@@ -144,8 +143,8 @@ jobs:
       #     commit_branch: ${{ github.ref }}
       #     commit_tag: ${{ github.ref }}-chart
       #     commit_message: Tag ${{ github.sha }} Updated On Charts !
-      # -   
-      #   name: 'Updating Helm Charts values on branch dev'
+
+      # - name: 'Updating Helm Charts values on branch dev'
       #   if: ${{ github.ref == 'refs/heads/dev' }}
       #   uses: Nextdoor/helm-set-image-tag-action@main
       #   with:
@@ -155,8 +154,8 @@ jobs:
       #     commit_branch: ${{ github.ref }}
       #     commit_tag: ${{ github.ref }}-chart
       #     commit_message: Tag ${{ github.sha }} Updated On Charts !
-      # -   
-      #   name: 'Updating Helm Charts values on branch release'
+
+      # - name: 'Updating Helm Charts values on branch release'
       #   if: ${{ github.ref == 'refs/heads/release' }}
       #   uses: Nextdoor/helm-set-image-tag-action@main
       #   with:
