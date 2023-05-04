@@ -144,7 +144,7 @@ jobs:
         uses: Nextdoor/helm-set-image-tag-action@main
         with:
           values_files: charts/values.yaml
-          tag_keys: .backend.tag,.frontend.tag          
+          tag_keys: .backend.tag      
           tag_value: ${{ github.sha }}
           commit_branch: ${{ github.ref }}
           commit_tag: ${{ github.ref }}-chart
