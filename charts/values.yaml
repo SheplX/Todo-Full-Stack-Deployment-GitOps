@@ -4,10 +4,10 @@ ingress:
         - todo.devops.com
 backend:
   repository: docker.pkg.github.com/Todo-Full-Stack-Deployment/sheplx/backend
-  tag: 56b091cd7944c1d76af4f2c8e4dd4e167859fd43
+  tag: b33d0cc7dff1dead7ae55e0c53e130bc46be1de1
 frontend:
   repository: docker.pkg.github.com/Todo-Full-Stack-Deployment/sheplx/frontend
-  tag: 56b091cd7944c1d76af4f2c8e4dd4e167859fd43
+  tag: b33d0cc7dff1dead7ae55e0c53e130bc46be1de1
 spec:
   replicas: 3
 DBname:
