@@ -138,8 +138,30 @@ jobs:
       #       docker push $IMAGE_ID:$VERSION
       #     fi  
 
-      - name: Backend and Frontend Helm charts update
+      - name: Backend and Frontend Helm charts main update
         if: github.ref == 'refs/heads/main' && steps.backend.outputs.any_changed == 'true' || steps.frontend.outputs.any_changed == 'true'
+        uses: Nextdoor/helm-set-image-tag-action@main
+        with:
+          values_files: charts/values.yaml
+          tag_keys: .backend.tag,.frontend.tag          
+          tag_value: ${{ github.sha }}
+          commit_branch: ${{ github.ref }}
+          commit_tag: ${{ github.ref }}-chart
+          commit_message: Tag ${{ github.sha }} Updated On Charts !
+
+      - name: Backend and Frontend Helm charts stage update
+        if: github.ref == 'refs/heads/stage' && steps.backend.outputs.any_changed == 'true' || steps.frontend.outputs.any_changed == 'true'
+        uses: Nextdoor/helm-set-image-tag-action@main
+        with:
+          values_files: charts/values.yaml
+          tag_keys: .backend.tag,.frontend.tag          
+          tag_value: ${{ github.sha }}
+          commit_branch: ${{ github.ref }}
+          commit_tag: ${{ github.ref }}-chart
+          commit_message: Tag ${{ github.sha }} Updated On Charts !
+
+      - name: Backend and Frontend Helm charts dev update
+        if: github.ref == 'refs/heads/dev' && steps.backend.outputs.any_changed == 'true' || steps.frontend.outputs.any_changed == 'true'
         uses: Nextdoor/helm-set-image-tag-action@main
         with:
           values_files: charts/values.yaml
