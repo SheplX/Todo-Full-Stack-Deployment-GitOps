@@ -1,0 +1,174 @@
+name: TODO-FRONTEND-CI
+on:
+  push:
+    paths:
+      - 'frontend/**'
+    branches:
+      - main
+      - dev
+      - stage
+  pull_request:
+    branches:
+      - main
+      - dev
+    paths:
+      - 'frontend/**'
+
+env:
+  FRONTEND_IMAGE: frontend
+
+jobs:
+  TODO-FRONTEND-CI:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Get changed files in the Frontend folder
+        id: frontend
+        uses: tj-actions/changed-files@v35
+        with:
+          files: ${{ env.FRONTEND_IMAGE }}/**
+
+      - name: Frontend changed files
+        if: steps.frontend.outputs.any_changed == 'true'
+        run: |
+          echo "Changed Files: ${{ steps.frontend.outputs.all_changed_files }}"
+
+      - name: Build Docker image
+        working-directory: frontend/
+        run: docker build -t $FRONTEND_IMAGE .
+
+      - name: Scan Frontend Image
+        if: steps.frontend.outputs.any_changed == 'true'
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.FRONTEND_IMAGE }}
+          format: sarif
+          output: 'console'
+          exit-code: '0'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+
+      - name: Log Into Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+
+      - name: Push Image Tag
+        run: |
+          IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$FRONTEND_IMAGE
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          VERSION=$GITHUB_SHA
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$GITHUB_SHA
+          docker tag $FRONTEND_IMAGE $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+
+      - name: Update Frontend Helm chart values if main
+        if: github.ref == 'refs/heads/main'
+        uses: Nextdoor/helm-set-image-tag-action@main
+        with:
+          values_files: charts/values.yaml
+          tag_keys: .backend.tag      
+          tag_value: ${{ github.sha }}
+          commit_branch: ${{ github.ref }}
+          commit_tag: ${{ github.ref }}-chart
+          commit_message: Tag ${{ github.sha }} Updated On Charts !
+
+      - name: Update Frontend Helm chart values if stage
+        if: github.ref == 'refs/heads/stage'
+        uses: Nextdoor/helm-set-image-tag-action@main
+        with:
+          values_files: charts/values.yaml
+          tag_keys: .frontend.tag          
+          tag_value: ${{ github.sha }}
+          commit_branch: ${{ github.ref }}
+          commit_tag: ${{ github.ref }}-chart
+          commit_message: Tag ${{ github.sha }} Updated On Charts !
+
+      - name: Update Frontend Helm chart values if dev
+        if: github.ref == 'refs/heads/dev'
+        uses: Nextdoor/helm-set-image-tag-action@main
+        with:
+          values_files: charts/values.yaml
+          tag_keys: .frontend.tag          
+          tag_value: ${{ github.sha }}
+          commit_branch: ${{ github.ref }}
+          commit_tag: ${{ github.ref }}-chart
+          commit_message: Tag ${{ github.sha }} Updated On Charts !
+
+      # - name: 'Updating Helm Charts values on branch main'
+      #   if: ${{ github.ref == 'refs/heads/main' }}
+      #   uses: Nextdoor/helm-set-image-tag-action@main
+      #   with:
+      #     values_files: charts/values.yaml
+      #     tag_keys: .backend.tag
+      #     tag_value: ${{ github.sha }}
+      #     commit_branch: ${{ github.ref }}
+      #     commit_tag: ${{ github.ref }}-chart
+      #     commit_message: Tag ${{ github.sha }} Updated On Charts !
+
+      # - name: 'Updating Helm Charts values on branch dev'
+      #   if: ${{ github.ref == 'refs/heads/dev' }}
+      #   uses: Nextdoor/helm-set-image-tag-action@main
+      #   with:
+      #     values_files: charts/values.yaml
+      #     tag_keys: .backend.tag          
+      #     tag_value: ${{ github.sha }}
+      #     commit_branch: ${{ github.ref }}
+      #     commit_tag: ${{ github.ref }}-chart
+      #     commit_message: Tag ${{ github.sha }} Updated On Charts !
+
+      # - name: 'Updating Helm Charts values on branch release'
+      #   if: ${{ github.ref == 'refs/heads/release' }}
+      #   uses: Nextdoor/helm-set-image-tag-action@main
+      #   with:
+      #     values_files: charts/values.yaml
+      #     tag_keys: .backend.tag          
+      #     tag_value: ${{ github.sha }}
+      #     commit_branch: ${{ github.ref }}
+      #     commit_tag: ${{ github.ref }}-chart
+      #     commit_message: Tag ${{ github.sha }} Updated On Charts !
+
+
+
+
+
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest  # windows-latest | macos-latest
+#     name: Test changed-files
+#     steps:
+#       - uses: actions/checkout@v3
+#         with:
+#           fetch-depth: 0  # OR "2" -> To retrieve the preceding commit.
+
+#       # Example 1
+#       - name: Get changed files
+#         id: changed-files
+#         uses: tj-actions/changed-files@v35
+        
+#         # To compare changes between the current commit and the last pushed remote commit set `since_last_remote_commit: true`. e.g
+#         # with:
+#         #   since_last_remote_commit: true 
+
+#       - name: List all changed files
+#         run: |
+#           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+#             echo "$file was changed"
+#           done
+
+#       # Example 2
+#       - name: Get changed files in the docs folder
+#         id: changed-files-specific
+#         uses: tj-actions/changed-files@v35
+#         with:
+#           files: docs/*.{js,html}  # Alternatively using: `docs/**` or `docs`
+
+#       - name: Run step if any file(s) in the docs folder change
+#         if: steps.changed-files-specific.outputs.any_changed == 'true'
+#         run: |
+#           echo "One or more files in the docs folder has changed."
+#           echo "List all the files that have changed: ${{ steps.changed-files-specific.outputs.all_changed_files }}"
