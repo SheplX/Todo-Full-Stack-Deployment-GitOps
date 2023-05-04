@@ -56,10 +56,10 @@ jobs:
       - name: Push Image Tag
         run: |
           IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$BACKEND_IMAGE
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-          VERSION=$GITHUB_SHA
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          # IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          VERSION=$(echo "${{ github.sha }}" | cut -c1-7)
+          # VERSION=$GITHUB_SHA
+          # [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$GITHUB_SHA
           docker tag $BACKEND_IMAGE $IMAGE_ID:$VERSION
@@ -74,7 +74,7 @@ jobs:
           tag_value: ${{ github.sha }}
           commit_branch: ${{ github.ref }}
           commit_tag: Todo-Main-Charts
-          commit_message: Tag Backend:$(echo "${{ github.sha }}" | cut -c1-7) Pumped
+          commit_message: Tag Backend:${{ env.VERSION }} Pumped
 
       - name: Update Helm Chart Values at Stage
         if: ${{ github.ref == 'refs/heads/stage'}} 
@@ -85,7 +85,7 @@ jobs:
           tag_value: ${{ github.sha }}
           commit_branch: ${{ github.ref }}
           commit_tag: Todo-Stage-Charts
-          commit_message: Tag Backend:$(echo "${{ github.sha }}" | cut -c1-7) Pumped
+          commit_message: Tag Backend:${{ env.VERSION }} Pumped
 
       - name: Update Helm Chart Values at Dev
         if: ${{ github.ref == 'refs/heads/dev'}} 
@@ -96,7 +96,7 @@ jobs:
           tag_value: ${{ github.sha }}
           commit_branch: ${{ github.ref }}
           commit_tag: Todo-Dev-Charts
-          commit_message: Tag Backend:$(echo "${{ github.sha }}" | cut -c1-7) Pumped
+          commit_message: Tag Backend:${{ env.VERSION }} Pumped
 
       # - name: 'Updating Helm Charts values on branch main'
       #   if: ${{ github.ref == 'refs/heads/main' }}
