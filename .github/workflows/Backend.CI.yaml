@@ -74,7 +74,7 @@ jobs:
           tag_keys: .backend.tag      
           tag_value: ${{ github.sha }}
           commit_branch: ${{ github.ref }}
-          commit_tag: ${{ github.ref }}-chart
+          commit_tag: ${{ github.ref }}
           commit_message: Tag ${{ github.sha }} Updated On Charts !
 
       - name: Update Backend Helm chart values if stage
@@ -85,7 +85,7 @@ jobs:
           tag_keys: .backend.tag          
           tag_value: ${{ github.sha }}
           commit_branch: ${{ github.ref }}
-          commit_tag: ${{ github.ref }}-chart
+          commit_tag: ${{ github.ref }}
           commit_message: Tag ${{ github.sha }} Updated On Charts !
 
       - name: Update Backend Helm chart values if dev
@@ -96,7 +96,7 @@ jobs:
           tag_keys: .backend.tag          
           tag_value: ${{ github.sha }}
           commit_branch: ${{ github.ref }}
-          commit_tag: ${{ github.ref }}-chart
+          commit_tag: ${{ github.ref }}
           commit_message: Tag ${{ github.sha }} Updated On Charts !
 
       # - name: 'Updating Helm Charts values on branch main'
