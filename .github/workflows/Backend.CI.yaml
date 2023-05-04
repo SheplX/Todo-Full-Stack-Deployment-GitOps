@@ -1,4 +1,4 @@
-name: TODO-FRONTEND-CI
+name: TODO-FRONTEND-TEST
 on:
   push:
     paths:
@@ -11,6 +11,7 @@ on:
     branches:
       - main
       - dev
+      - stage
     paths:
       - 'backend/**'
 
@@ -82,7 +83,7 @@ jobs:
           values_files: charts/values.yaml
           tag_keys: .backend.tag          
           tag_value: ${{ github.sha }}
-          commit_branch: refs/heads/stage
+          commit_branch: ${{ github.ref }}
           commit_tag: ${{ github.ref }}
           commit_message: Tag ${{ github.sha }} Updated On Charts !
 
