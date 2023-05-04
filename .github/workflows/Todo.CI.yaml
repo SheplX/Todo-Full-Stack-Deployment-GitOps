@@ -6,6 +6,8 @@ on:
       - 'frontend/**'
     branches:
       - main
+      - dev
+      - stage
   pull_request:
     branches:
       - main
