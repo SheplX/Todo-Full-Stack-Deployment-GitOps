@@ -25,30 +25,30 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Get changed files in the backend folder
+      - name: Check Changed Files In Backend Folder
         id: backend
         uses: tj-actions/changed-files@v35
         with:
           files: ${{ env.BACKEND_IMAGE }}/**
 
-      - name: Backend changed files
+      - name: Changed Files
         if: steps.backend.outputs.any_changed == 'true'
         run: |
           echo "Changed Files: ${{ steps.backend.outputs.all_changed_files }}"
 
-      - name: Build Docker image
+      - name: Build Backend Docker Image
         working-directory: backend/
         run: docker build -t $BACKEND_IMAGE .
 
-      # - name: Scan Backend Image
-      #   uses: aquasecurity/trivy-action@master
-      #   with:
-      #     image-ref: ${{ env.BACKEND_IMAGE }}
-      #     format: 'table'
-      #     exit-code: '0'
-      #     ignore-unfixed: true
-      #     vuln-type: 'os,library'
-      #     severity: 'CRITICAL,HIGH,MEDIUM'
+      - name: Scan Backend Image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.BACKEND_IMAGE }}
+          format: 'table'
+          exit-code: '0'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH,MEDIUM'
 
       - name: Log Into Registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
@@ -65,7 +65,7 @@ jobs:
           docker tag $BACKEND_IMAGE $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
 
-      - name: Update Backend Helm chart values if main
+      - name: Update Helm Chart Values at Main
         if: ${{ github.ref == 'refs/heads/main'}} 
         uses: Nextdoor/helm-set-image-tag-action@main
         with:
@@ -74,9 +74,9 @@ jobs:
           tag_value: ${{ github.sha }}
           commit_branch: ${{ github.ref }}
           commit_tag: Todo-Main-Charts
-          commit_message: Tag ${{ github.sha }} Updated On Charts !
+          commit_message: Tag Backend:$(echo "${{ github.sha }}" | cut -c1-7) Pumped
 
-      - name: Update Backend Helm chart values if stage
+      - name: Update Helm Chart Values at Stage
         if: ${{ github.ref == 'refs/heads/stage'}} 
         uses: Nextdoor/helm-set-image-tag-action@main
         with:
@@ -85,9 +85,9 @@ jobs:
           tag_value: ${{ github.sha }}
           commit_branch: ${{ github.ref }}
           commit_tag: Todo-Stage-Charts
-          commit_message: Tag ${{ github.sha }} Updated On Charts !
+          commit_message: Tag Backend:$(echo "${{ github.sha }}" | cut -c1-7) Pumped
 
-      - name: Update Backend Helm chart values if dev
+      - name: Update Helm Chart Values at Dev
         if: ${{ github.ref == 'refs/heads/dev'}} 
         uses: Nextdoor/helm-set-image-tag-action@main
         with:
@@ -96,7 +96,7 @@ jobs:
           tag_value: ${{ github.sha }}
           commit_branch: ${{ github.ref }}
           commit_tag: Todo-Dev-Charts
-          commit_message: Tag ${{ github.sha }} Updated On Charts !
+          commit_message: Tag Backend:$(echo "${{ github.sha }}" | cut -c1-7) Pumped
 
       # - name: 'Updating Helm Charts values on branch main'
       #   if: ${{ github.ref == 'refs/heads/main' }}
