@@ -56,7 +56,7 @@ jobs:
       - name: Push Image Tag
         run: |
           IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$BACKEND_IMAGE
-          # IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
           VERSION=$(echo "${{ github.sha }}" | cut -c1-7)
           # VERSION=$GITHUB_SHA
           # [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
