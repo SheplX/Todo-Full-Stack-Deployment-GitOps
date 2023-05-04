@@ -5,9 +5,6 @@ ingress:
 backend:
   repository: docker.pkg.github.com/Todo-Full-Stack-Deployment/sheplx/backend
   tag: fa251da6a304585774ac9e8a3d5bc84628567ea0
-frontend:
-  repository: docker.pkg.github.com/Todo-Full-Stack-Deployment/sheplx/frontend
-  tag: fa251da6a304585774ac9e8a3d5bc84628567ea0
 spec:
   replicas: 3
 DBname:
