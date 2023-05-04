@@ -71,7 +71,7 @@ jobs:
           values_files: charts/values.yaml
           tag_keys: .backend.tag      
           tag_value: ${{ github.sha }}
-          commit_branch: ${{ github.ref }}
+          commit_branch: stage
           commit_tag: ${{ github.ref }}
           commit_message: Tag ${{ github.sha }} Updated On Charts !
 
