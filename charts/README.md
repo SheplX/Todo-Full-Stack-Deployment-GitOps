@@ -1,6 +1,6 @@
 # Todo app
 
-![Version: 0.1.67](https://img.shields.io/badge/Version-0.1.67-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.16.0](https://img.shields.io/badge/AppVersion-1.16.0-informational?style=flat-square)
+![Version: 0.1.68](https://img.shields.io/badge/Version-0.1.68-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.16.0](https://img.shields.io/badge/AppVersion-1.16.0-informational?style=flat-square)
 
 Todo app Helm chart
 
@@ -10,7 +10,7 @@ Todo app Helm chart
 |-----|------|---------|-------------|
 | DBname.name | string | `"db"` |  |
 | backend.repository | string | `"docker.pkg.github.com/Todo-Full-Stack-Deployment/sheplx/backend"` |  |
-| backend.tag | string | `"48996a667a58487f03696e39454344bc7d341f92"` |  |
+| backend.tag | string | `"463deb6a544672aff7c31bc316ec4f55cedbd963"` |  |
 | frontend.repository | string | `"docker.pkg.github.com/Todo-Full-Stack-Deployment/sheplx/frontend"` |  |
 | frontend.tag | string | `"c8dd64edf28cdfa5c7c8b95b581e2549857a5ee8"` |  |
 | ingress.tls[0].hosts[0] | string | `"todo.devops.com"` |  |
