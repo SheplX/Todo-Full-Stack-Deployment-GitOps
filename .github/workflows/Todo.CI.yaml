@@ -93,8 +93,9 @@ jobs:
 
       - name: Push Docker Images
         run: |
-          for component in backend frontend; do
-            if [[ "$(steps.${component}.outputs.any_changed)" == "true" ]]; then
+          for component in backend frontend
+          do
+            if [[ "$(steps.$component.outputs.any_changed)" == "true" ]]; then
               IMAGE_ID=$component
               IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
               VERSION=$GITHUB_SHA
