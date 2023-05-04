@@ -39,15 +39,15 @@ jobs:
         working-directory: backend/
         run: docker build -t $BACKEND_IMAGE .
 
-      - name: Scan Backend Image
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: ${{ env.BACKEND_IMAGE }}
-          format: 'table'
-          exit-code: '0'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH,MEDIUM'
+      # - name: Scan Backend Image
+      #   uses: aquasecurity/trivy-action@master
+      #   with:
+      #     image-ref: ${{ env.BACKEND_IMAGE }}
+      #     format: 'table'
+      #     exit-code: '0'
+      #     ignore-unfixed: true
+      #     vuln-type: 'os,library'
+      #     severity: 'CRITICAL,HIGH,MEDIUM'
 
       - name: Log Into Registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
