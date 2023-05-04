@@ -93,17 +93,18 @@ jobs:
 
       - name: Push Docker Images
         run: |
-          for component in backend frontend; do
-            if [[ "${{ steps.$component.outputs.any_changed }}" == "true" ]]; then
-              IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$component
-              IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-              VERSION=$GITHUB_SHA
-              echo IMAGE_ID=$IMAGE_ID
-              echo VERSION=$GITHUB_SHA
-              docker tag $component $IMAGE_ID:$VERSION
-              docker push $IMAGE_ID:$VERSION
-            fi
-          done
+          Run for component in backend frontend; do
+            for component in backend frontend; do
+              if [[ "$(steps.${component}.outputs.any_changed)" == "true" ]]; then
+                IMAGE_ID=docker.pkg.github.com/SheplX/Todo-Full-Stack-Deployment/$component
+                IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+                VERSION=$GITHUB_SHA
+                echo IMAGE_ID=$IMAGE_ID
+                echo VERSION=$GITHUB_SHA
+                docker tag $component $IMAGE_ID:$VERSION
+                docker push $IMAGE_ID:$VERSION
+              fi
+            done
 
       # - name: Push Backend Image Tag
       #   run: |
