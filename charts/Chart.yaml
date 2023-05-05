@@ -1,6 +1,0 @@
-apiVersion: v2
-appVersion: 1.16.0
-description: Todo app Helm chart
-name: Todo app
-type: application
-version: 0.1.94
