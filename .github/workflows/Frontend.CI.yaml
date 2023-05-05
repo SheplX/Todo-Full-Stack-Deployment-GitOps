@@ -1,8 +1,7 @@
-name: TODO-CI
+name: TODO-FRONTEND-CI
 on:
   push:
     paths:
-      - 'backend/**'
       - 'frontend/**'
     branches:
       - main
@@ -13,68 +12,32 @@ on:
       - main
       - dev
     paths:
-      - 'backend/**'
       - 'frontend/**'
 
 env:
-  BACKEND_IMAGE: backend
   FRONTEND_IMAGE: frontend
 
 jobs:
-  SCAN_CHANGES:
+  TODO-FRONTEND-CI:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Get changed files in the Backend folder
-        id: backend
-        uses: tj-actions/changed-files@v35
-        with:
-          files: backend/**
-
       - name: Get changed files in the Frontend folder
         id: frontend
         uses: tj-actions/changed-files@v35
         with:
-          files: frontend/**
-
-      - name: Backend changed files
-        if: steps.backend.outputs.any_changed == 'true'
-        run: |
-          echo "List all the files that have changed: ${{ steps.backend.outputs.all_changed_files }}"
+          files: ${{ env.FRONTEND_IMAGE }}/**
 
       - name: Frontend changed files
         if: steps.frontend.outputs.any_changed == 'true'
         run: |
-          echo "List all the files that have changed: ${{ steps.frontend.outputs.all_changed_files }}"
+          echo "Changed Files: ${{ steps.frontend.outputs.all_changed_files }}"
 
-  # IMAGE_BUILD:
-  #   runs-on: ubuntu-latest
-  #   steps:
-      - name: Build backend Docker image
-        if: steps.backend.outputs.any_changed == 'true'
-        working-directory: backend/
-        run: docker build -t $BACKEND_IMAGE .
-
-      - name: Build frontend Docker image
-        if: steps.frontend.outputs.any_changed == 'true'
+      - name: Build Docker image
         working-directory: frontend/
         run: docker build -t $FRONTEND_IMAGE .
-
-  # IMAGE_SCAN:
-  #   runs-on: ubuntu-latest
-  #   steps:
-      - name: Scan Backend Image
-        if: steps.backend.outputs.any_changed == 'true'
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: ${{ env.BACKEND_IMAGE }}
-          format: 'table'
-          exit-code: '0'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH,MEDIUM'
 
       - name: Scan Frontend Image
         if: steps.frontend.outputs.any_changed == 'true'
@@ -91,82 +54,46 @@ jobs:
       - name: Log Into Registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
 
-      - name: Push Docker Images
+      - name: Push Image Tag
         run: |
-          for component in backend frontend
-          do
-            if [[ "$(steps.$component.outputs.any_changed)" == "true" ]]; then
-              IMAGE_ID=$component
-              IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-              VERSION=$GITHUB_SHA
-              echo IMAGE_ID=$IMAGE_ID
-              echo VERSION=$GITHUB_SHA
-              docker tag $component $IMAGE_ID:$VERSION
-              docker push $IMAGE_ID:$VERSION
-            fi
-          done
+          IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$FRONTEND_IMAGE
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          VERSION=$GITHUB_SHA
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$GITHUB_SHA
+          docker tag $FRONTEND_IMAGE $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
 
-      # - name: Push Backend Image Tag
-      #   run: |
-      #     if [[ steps.backend.outputs.any_changed == 'true' ]]; then
-      #       IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$BACKEND_IMAGE
-      #       IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-      #       VERSION=$GITHUB_SHA
-      #       echo IMAGE_ID=$IMAGE_ID
-      #       echo VERSION=$GITHUB_SHA
-      #       docker tag $BACKEND_IMAGE $IMAGE_ID:$VERSION
-      #       docker push $IMAGE_ID:$VERSION
-      #     fi
-      #     if [[ steps.frontend.outputs.any_changed == 'true' ]]; then
-      #       IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$FRONTEND_IMAGE
-      #       IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-      #       VERSION=$GITHUB_SHA
-      #       echo IMAGE_ID=$IMAGE_ID
-      #       echo VERSION=$GITHUB_SHA
-      #       docker tag $FRONTEND_IMAGE $IMAGE_ID:$VERSION
-      #       docker push $IMAGE_ID:$VERSION
-      #     fi  
-
-      # - name: Push Frontend Image Tag
-      #   run: |
-      #     if [[ steps.frontend.outputs.any_changed == 'true' ]]; then
-      #       IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$FRONTEND_IMAGE
-      #       IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-      #       VERSION=$GITHUB_SHA
-      #       echo IMAGE_ID=$IMAGE_ID
-      #       echo VERSION=$GITHUB_SHA
-      #       docker tag $FRONTEND_IMAGE $IMAGE_ID:$VERSION
-      #       docker push $IMAGE_ID:$VERSION
-      #     fi  
-
-      - name: Backend and Frontend Helm charts main update
-        if: github.ref == 'refs/heads/main' && steps.backend.outputs.any_changed == 'true' || steps.frontend.outputs.any_changed == 'true'
+      - name: Update Frontend Helm chart values if main
+        if: github.ref == 'refs/heads/main'
         uses: Nextdoor/helm-set-image-tag-action@main
         with:
           values_files: charts/values.yaml
-          tag_keys: .backend.tag,.frontend.tag          
+          tag_keys: .backend.tag      
           tag_value: ${{ github.sha }}
           commit_branch: ${{ github.ref }}
           commit_tag: ${{ github.ref }}-chart
           commit_message: Tag ${{ github.sha }} Updated On Charts !
 
-      - name: Backend and Frontend Helm charts stage update
-        if: github.ref == 'refs/heads/stage' && steps.backend.outputs.any_changed == 'true' || steps.frontend.outputs.any_changed == 'true'
+      - name: Update Frontend Helm chart values if stage
+        if: github.ref == 'refs/heads/stage'
         uses: Nextdoor/helm-set-image-tag-action@main
         with:
           values_files: charts/values.yaml
-          tag_keys: .backend.tag,.frontend.tag          
+          tag_keys: .frontend.tag          
           tag_value: ${{ github.sha }}
           commit_branch: ${{ github.ref }}
           commit_tag: ${{ github.ref }}-chart
           commit_message: Tag ${{ github.sha }} Updated On Charts !
 
-      - name: Backend and Frontend Helm charts dev update
-        if: github.ref == 'refs/heads/dev' && steps.backend.outputs.any_changed == 'true' || steps.frontend.outputs.any_changed == 'true'
+      - name: Update Frontend Helm chart values if dev
+        if: github.ref == 'refs/heads/dev'
         uses: Nextdoor/helm-set-image-tag-action@main
         with:
           values_files: charts/values.yaml
-          tag_keys: .backend.tag,.frontend.tag          
+          tag_keys: .frontend.tag          
           tag_value: ${{ github.sha }}
           commit_branch: ${{ github.ref }}
           commit_tag: ${{ github.ref }}-chart

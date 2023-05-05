@@ -1,0 +1,172 @@
+name: TODO-FRONTEND-TEST
+on:
+  push:
+    # paths:
+    #   - 'backend/**'
+    branches:
+      - main
+      - dev
+      - stage
+  pull_request:
+    branches:
+      - main
+      - dev
+      - stage
+    # paths:
+    #   - 'backend/**'
+
+env:
+  BACKEND_IMAGE: backend
+  SHORT_SHA: $(echo "${{ github.sha }}" | cut -c1-7)
+
+jobs:
+  TODO-BACKEND-CI:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Check Changed Files In Backend Folder
+        id: backend
+        uses: tj-actions/changed-files@v35
+        with:
+          files: ${{ env.BACKEND_IMAGE }}/**
+
+      - name: Changed Files
+        if: steps.backend.outputs.any_changed == 'true'
+        run: |
+          echo "Changed Files: ${{ steps.backend.outputs.all_changed_files }}"
+
+      - name: Build Backend Docker Image
+        working-directory: backend/
+        run: docker build -t $BACKEND_IMAGE .
+
+      - name: Scan Backend Image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.BACKEND_IMAGE }}
+          format: 'table'
+          exit-code: '0'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+
+      - name: Log Into Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+
+      - name: Push Image Tag
+        run: |
+          IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$BACKEND_IMAGE
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          VERSION=$GITHUB_SHA
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+          docker tag $BACKEND_IMAGE $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+
+      - name: Update Helm Chart Values at Main
+        if: ${{ github.ref == 'refs/heads/main'}} 
+        uses: Nextdoor/helm-set-image-tag-action@main
+        with:
+          values_files: charts/values.yaml
+          tag_keys: .backend.tag      
+          tag_value: ${{ github.sha }}
+          commit_branch: ${{ github.ref }}
+          commit_tag: Todo-Main-Charts
+          commit_message: "Tag Backend:${{ env.SHORT_SHA }} Pumped"
+          
+      - name: Update Helm Chart Values at Stage
+        if: ${{ github.ref == 'refs/heads/stage'}} 
+        uses: Nextdoor/helm-set-image-tag-action@main
+        with:
+          values_files: charts/values.yaml
+          tag_keys: .backend.tag          
+          tag_value: ${{ github.sha }}
+          commit_branch: ${{ github.ref }}
+          commit_tag: Todo-Stage-Charts
+          commit_message: "Tag Backend:${{ env.SHORT_SHA }} Pumped"
+
+      - name: Update Helm Chart Values at Dev
+        if: ${{ github.ref == 'refs/heads/dev'}} 
+        uses: Nextdoor/helm-set-image-tag-action@main
+        with:
+          values_files: charts/values.yaml
+          tag_keys: .backend.tag          
+          tag_value: ${{ github.sha }}
+          commit_branch: ${{ github.ref }}
+          commit_tag: Todo-Dev-Charts
+          commit_message: "Tag Backend:${{ env.SHORT_SHA }} Pumped"
+
+      # - name: 'Updating Helm Charts values on branch main'
+      #   if: ${{ github.ref == 'refs/heads/main' }}
+      #   uses: Nextdoor/helm-set-image-tag-action@main
+      #   with:
+      #     values_files: charts/values.yaml
+      #     tag_keys: .backend.tag
+      #     tag_value: ${{ github.sha }}
+      #     commit_branch: ${{ github.ref }}
+      #     commit_tag: ${{ github.ref }}-chart
+      #     commit_message: Tag ${{ github.sha }} Updated On Charts !
+
+      # - name: 'Updating Helm Charts values on branch dev'
+      #   if: ${{ github.ref == 'refs/heads/dev' }}
+      #   uses: Nextdoor/helm-set-image-tag-action@main
+      #   with:
+      #     values_files: charts/values.yaml
+      #     tag_keys: .backend.tag          
+      #     tag_value: ${{ github.sha }}
+      #     commit_branch: ${{ github.ref }}
+      #     commit_tag: ${{ github.ref }}-chart
+      #     commit_message: Tag ${{ github.sha }} Updated On Charts !
+
+      # - name: 'Updating Helm Charts values on branch release'
+      #   if: ${{ github.ref == 'refs/heads/release' }}
+      #   uses: Nextdoor/helm-set-image-tag-action@main
+      #   with:
+      #     values_files: charts/values.yaml
+      #     tag_keys: .backend.tag          
+      #     tag_value: ${{ github.sha }}
+      #     commit_branch: ${{ github.ref }}
+      #     commit_tag: ${{ github.ref }}-chart
+      #     commit_message: Tag ${{ github.sha }} Updated On Charts !
+
+
+
+
+
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest  # windows-latest | macos-latest
+#     name: Test changed-files
+#     steps:
+#       - uses: actions/checkout@v3
+#         with:
+#           fetch-depth: 0  # OR "2" -> To retrieve the preceding commit.
+
+#       # Example 1
+#       - name: Get changed files
+#         id: changed-files
+#         uses: tj-actions/changed-files@v35
+        
+#         # To compare changes between the current commit and the last pushed remote commit set `since_last_remote_commit: true`. e.g
+#         # with:
+#         #   since_last_remote_commit: true 
+
+#       - name: List all changed files
+#         run: |
+#           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+#             echo "$file was changed"
+#           done
+
+#       # Example 2
+#       - name: Get changed files in the docs folder
+#         id: changed-files-specific
+#         uses: tj-actions/changed-files@v35
+#         with:
+#           files: docs/*.{js,html}  # Alternatively using: `docs/**` or `docs`
+
+#       - name: Run step if any file(s) in the docs folder change
+#         if: steps.changed-files-specific.outputs.any_changed == 'true'
+#         run: |
+#           echo "One or more files in the docs folder has changed."
+#           echo "List all the files that have changed: ${{ steps.changed-files-specific.outputs.all_changed_files }}"
