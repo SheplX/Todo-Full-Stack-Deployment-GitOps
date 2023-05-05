@@ -17,7 +17,7 @@ on:
 
 env:
   BACKEND_IMAGE: backend
-  SHORT_SHA: $(echo "${{ github.sha }}" | cut -c1-7)
+  SHORT_SHA: ${GITHUB_SHA::7}
 
 jobs:
   TODO-BACKEND-CI:
@@ -73,7 +73,7 @@ jobs:
           tag_value: ${{ github.sha }}
           commit_branch: ${{ github.ref }}
           commit_tag: Todo-Main-Charts
-          commit_message: Tag Backend:${{ github.sha | truncate(7, "") }} Pumped
+          commit_message: Tag Backend:$SHORT_SHA Pumped
           
       - name: Update Helm Chart Values at Stage
         if: ${{ github.ref == 'refs/heads/stage'}} 
@@ -84,7 +84,7 @@ jobs:
           tag_value: ${{ github.sha }}
           commit_branch: ${{ github.ref }}
           commit_tag: Todo-Stage-Charts
-          commit_message: Tag Backend:${{ github.sha | truncate(7, "") }} Pumped
+          commit_message: Tag Backend:$SHORT_SHA Pumped
 
       - name: Update Helm Chart Values at Dev
         if: ${{ github.ref == 'refs/heads/dev'}} 
@@ -95,7 +95,7 @@ jobs:
           tag_value: ${{ github.sha }}
           commit_branch: ${{ github.ref }}
           commit_tag: Todo-Dev-Charts
-          commit_message: Tag Backend:${{ github.sha | truncate(7, "") }} Pumped
+          commit_message: Tag Backend:$SHORT_SHA Pumped
 
       # - name: 'Updating Helm Charts values on branch main'
       #   if: ${{ github.ref == 'refs/heads/main' }}
