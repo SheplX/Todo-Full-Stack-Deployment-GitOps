@@ -1,8 +1,8 @@
 name: TODO-FRONTEND-CI
 on:
   push:
-    # paths:
-    #   - 'backend/**'
+    paths:
+      - 'backend/**'
     branches:
       - main
       - dev
@@ -12,8 +12,8 @@ on:
       - main
       - dev
       - stage
-    # paths:
-    #   - 'backend/**'
+    paths:
+      - 'backend/**'
 
 env:
   BACKEND_IMAGE: backend
@@ -55,7 +55,6 @@ jobs:
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
 
       - name: Push Image Tag
-        id: tag
         run: |
           IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$BACKEND_IMAGE
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
@@ -75,7 +74,7 @@ jobs:
           tag_value: ${{ steps.tag.outputs.VERSION }}
           commit_branch: ${{ github.ref }}
           commit_tag: Todo-Main-Charts-V-${{ steps.tag.outputs.VERSION }}
-          commit_message: "Backend update: Tag '${{ steps.tag.outputs.VERSION }}' added"
+          commit_message: "Backend update: Tag '${{ env.VERSION }}' added"
           
       - name: Update Helm Chart Values at Stage
         if: ${{ github.ref == 'refs/heads/stage'}} 
@@ -86,7 +85,7 @@ jobs:
           tag_value: ${{ steps.tag.outputs.VERSION }}
           commit_branch: ${{ github.ref }}
           commit_tag: Todo-Stage-Charts-V-${{ steps.tag.outputs.VERSION }}
-          commit_message: "Backend update: Tag '${{ steps.tag.outputs.VERSION }}' added"
+          commit_message: "Backend update: Tag '${{ env.VERSION }}' added"
 
       - name: Update Helm Chart Values at Dev
         if: ${{ github.ref == 'refs/heads/dev'}} 
@@ -97,7 +96,7 @@ jobs:
           tag_value: ${{ steps.tag.outputs.VERSION }}
           commit_branch: ${{ github.ref }}
           commit_tag: Todo-Dev-Charts-V-${{ steps.tag.outputs.VERSION }}
-          commit_message: "Backend update: Tag '${{ steps.tag.outputs.VERSION }}' added"
+          commit_message: "Backend update: Tag '${{ env.VERSION }}' added"
 
       # - name: 'Updating Helm Charts values on branch main'
       #   if: ${{ github.ref == 'refs/heads/main' }}
