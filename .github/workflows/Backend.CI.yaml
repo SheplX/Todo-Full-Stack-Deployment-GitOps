@@ -64,7 +64,7 @@ jobs:
           echo VERSION=$VERSION
           docker tag $BACKEND_IMAGE $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
-          echo "::set-output name=VERSION::$VERSION"
+          echo "{VERSION}={$VERSION}" >> $GITHUB_OUTPUT
 
       - name: Update Helm Chart Values at Main
         if: ${{ github.ref == 'refs/heads/main'}} 
