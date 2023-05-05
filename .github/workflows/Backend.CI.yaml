@@ -61,11 +61,12 @@ jobs:
         run: |
           IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$BACKEND_IMAGE
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-          VERSION=$(git rev-parse --short ${{ github.sha }})
+          VERSION=${GITHUB_SHA:0:7}
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$VERSION
           docker tag $BACKEND_IMAGE $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
+          echo "::set-output name=VERSION::$VERSION"
 
       - name: Update Helm Chart Values at Main
         if: ${{ github.ref == 'refs/heads/main'}} 
@@ -73,7 +74,7 @@ jobs:
         with:
           values_files: charts/values.yaml
           tag_keys: .backend.tag      
-          tag_value: ${{ steps.tag.outputs.VERSION }}
+          tag_value: ${{ steps.push_image_tag.outputs.VERSION }}
           commit_branch: ${{ github.ref }}
           commit_tag: Todo-Main-Charts
           commit_message: Tag Backend:${{ steps.push_image_tag.outputs.VERSION }} Pumped
@@ -84,7 +85,7 @@ jobs:
         with:
           values_files: charts/values.yaml
           tag_keys: .backend.tag          
-          tag_value: ${{ steps.tag.outputs.VERSION }}
+          tag_value: ${{ steps.push_image_tag.outputs.VERSION }}
           commit_branch: ${{ github.ref }}
           commit_tag: Todo-Stage-Charts
           commit_message: Tag Backend:${{ steps.push_image_tag.outputs.VERSION }} Pumped
@@ -95,7 +96,7 @@ jobs:
         with:
           values_files: charts/values.yaml
           tag_keys: .backend.tag          
-          tag_value: ${{ steps.tag.outputs.VERSION }}
+          tag_value: ${{ steps.push_image_tag.outputs.VERSION }}
           commit_branch: ${{ github.ref }}
           commit_tag: Todo-Dev-Charts
           commit_message: Tag Backend:${{ steps.push_image_tag.outputs.VERSION }} Pumped
