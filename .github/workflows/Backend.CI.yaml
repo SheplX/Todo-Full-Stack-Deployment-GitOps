@@ -1,4 +1,4 @@
-name: TODO-FRONTEND-TEST
+name: TODO-FRONTEND-CI
 on:
   push:
     # paths:
@@ -17,14 +17,12 @@ on:
 
 env:
   BACKEND_IMAGE: backend
-  SHORT_SHA: ${GITHUB_SHA::7}
 
 jobs:
   TODO-BACKEND-CI:
     runs-on: ubuntu-latest
-    env:
-      SHA12: ${GITHUB_SHA::12}
     steps:
+
       - name: Checkout code
         uses: actions/checkout@v2
 
@@ -57,7 +55,6 @@ jobs:
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
 
       - name: Push Image Tag
-        id: push_image_tag
         run: |
           IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$BACKEND_IMAGE
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
@@ -66,7 +63,7 @@ jobs:
           echo VERSION=$VERSION
           docker tag $BACKEND_IMAGE $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
-          echo "::set-output name=VERSION::$VERSION"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Update Helm Chart Values at Main
         if: ${{ github.ref == 'refs/heads/main'}} 
@@ -74,10 +71,10 @@ jobs:
         with:
           values_files: charts/values.yaml
           tag_keys: .backend.tag      
-          tag_value: ${{ steps.push_image_tag.outputs.VERSION }}
+          tag_value: ${{ env.VERSION }}
           commit_branch: ${{ github.ref }}
-          commit_tag: Todo-Main-Charts-V-${{ steps.push_image_tag.outputs.VERSION }}
-          commit_message: "Backend update: Tag '${{ steps.push_image_tag.outputs.VERSION }}' added"
+          commit_tag: Todo-Main-Charts-V-${{ env.VERSION }}
+          commit_message: "Backend update: Tag '${{ env.VERSION }}' added"
           
       - name: Update Helm Chart Values at Stage
         if: ${{ github.ref == 'refs/heads/stage'}} 
@@ -85,10 +82,10 @@ jobs:
         with:
           values_files: charts/values.yaml
           tag_keys: .backend.tag          
-          tag_value: ${{ steps.push_image_tag.outputs.VERSION }}
+          tag_value: ${{ env.VERSION }}
           commit_branch: ${{ github.ref }}
-          commit_tag: Todo-Stage-Charts-V-${{ steps.push_image_tag.outputs.VERSION }}
-          commit_message: "Backend update: Tag '${{ steps.push_image_tag.outputs.VERSION }}' added"
+          commit_tag: Todo-Stage-Charts-V-${{ env.VERSION }}
+          commit_message: "Backend update: Tag '${{ env.VERSION }}' added"
 
       - name: Update Helm Chart Values at Dev
         if: ${{ github.ref == 'refs/heads/dev'}} 
@@ -96,10 +93,10 @@ jobs:
         with:
           values_files: charts/values.yaml
           tag_keys: .backend.tag          
-          tag_value: ${{ steps.push_image_tag.outputs.VERSION }}
+          tag_value: ${{ env.VERSION }}
           commit_branch: ${{ github.ref }}
-          commit_tag: Todo-Dev-Charts-V-${{ steps.push_image_tag.outputs.VERSION }}
-          commit_message: "Backend update: Tag '${{ steps.push_image_tag.outputs.VERSION }}' added"
+          commit_tag: Todo-Dev-Charts-V-${{ env.VERSION }}
+          commit_message: "Backend update: Tag '${{ env.VERSION }}' added"
 
       # - name: 'Updating Helm Charts values on branch main'
       #   if: ${{ github.ref == 'refs/heads/main' }}
