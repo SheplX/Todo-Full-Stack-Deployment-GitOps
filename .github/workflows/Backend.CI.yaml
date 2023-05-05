@@ -69,7 +69,7 @@ jobs:
         if: ${{ github.ref == 'refs/heads/main'}} 
         uses: Nextdoor/helm-set-image-tag-action@main
         with:
-          values_files: charts/values.yaml
+          values_files: app-charts/values.yaml
           tag_keys: .backend.tag      
           tag_value: ${{ env.VERSION }}
           commit_branch: ${{ github.ref }}
@@ -80,7 +80,7 @@ jobs:
         if: ${{ github.ref == 'refs/heads/stage'}} 
         uses: Nextdoor/helm-set-image-tag-action@main
         with:
-          values_files: charts/values.yaml
+          values_files: app-charts/values.yaml
           tag_keys: .backend.tag          
           tag_value: ${{ env.VERSION }}
           commit_branch: ${{ github.ref }}
@@ -91,7 +91,7 @@ jobs:
         if: ${{ github.ref == 'refs/heads/dev'}} 
         uses: Nextdoor/helm-set-image-tag-action@main
         with:
-          values_files: charts/values.yaml
+          values_files: app-charts/values.yaml
           tag_keys: .backend.tag          
           tag_value: ${{ env.VERSION }}
           commit_branch: ${{ github.ref }}
