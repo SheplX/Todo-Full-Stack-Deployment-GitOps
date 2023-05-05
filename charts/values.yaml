@@ -7,7 +7,7 @@ backend:
   tag: "a8105cf"
 frontend:
   repository: docker.pkg.github.com/Todo-Full-Stack-Deployment/sheplx/frontend
-  tag: d9cb6b7
+  tag: d4fb2b4
 spec:
   replicas: 3
 DBname:
