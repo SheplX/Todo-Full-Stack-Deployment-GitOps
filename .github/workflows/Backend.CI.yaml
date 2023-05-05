@@ -1,8 +1,8 @@
 name: TODO-FRONTEND-CI
 on:
   push:
-    # paths:
-    #   - 'backend/**'
+    paths:
+      - 'backend/**'
     branches:
       - main
       - dev
@@ -12,8 +12,8 @@ on:
       - main
       - dev
       - stage
-    # paths:
-    #   - 'backend/**'
+    paths:
+      - 'backend/**'
 
 env:
   BACKEND_IMAGE: backend
