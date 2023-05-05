@@ -76,8 +76,8 @@ jobs:
           tag_keys: .backend.tag      
           tag_value: ${{ steps.push_image_tag.outputs.VERSION }}
           commit_branch: ${{ github.ref }}
-          commit_tag: Todo-Main-Charts-v-${{ steps.push_image_tag.outputs.VERSION }}
-          commit_message: "Backend update: Tag ${{ steps.push_image_tag.outputs.VERSION }} added"
+          commit_tag: Todo-Main-Charts-V-${{ steps.push_image_tag.outputs.VERSION }}
+          commit_message: "Backend update: Tag '${{ steps.push_image_tag.outputs.VERSION }}' added"
           
       - name: Update Helm Chart Values at Stage
         if: ${{ github.ref == 'refs/heads/stage'}} 
@@ -87,8 +87,8 @@ jobs:
           tag_keys: .backend.tag          
           tag_value: ${{ steps.push_image_tag.outputs.VERSION }}
           commit_branch: ${{ github.ref }}
-          commit_tag: Todo-Stage-Charts-v-${{ steps.push_image_tag.outputs.VERSION }}
-          commit_message: "Backend update: Tag ${{ steps.push_image_tag.outputs.VERSION }} added"
+          commit_tag: Todo-Stage-Charts-V-${{ steps.push_image_tag.outputs.VERSION }}
+          commit_message: "Backend update: Tag '${{ steps.push_image_tag.outputs.VERSION }}' added"
 
       - name: Update Helm Chart Values at Dev
         if: ${{ github.ref == 'refs/heads/dev'}} 
@@ -98,8 +98,8 @@ jobs:
           tag_keys: .backend.tag          
           tag_value: ${{ steps.push_image_tag.outputs.VERSION }}
           commit_branch: ${{ github.ref }}
-          commit_tag: Todo-Dev-Charts-v-${{ steps.push_image_tag.outputs.VERSION }}
-          commit_message: "Backend update: Tag ${{ steps.push_image_tag.outputs.VERSION }} added"
+          commit_tag: Todo-Dev-Charts-V-${{ steps.push_image_tag.outputs.VERSION }}
+          commit_message: "Backend update: Tag '${{ steps.push_image_tag.outputs.VERSION }}' added"
 
       # - name: 'Updating Helm Charts values on branch main'
       #   if: ${{ github.ref == 'refs/heads/main' }}
