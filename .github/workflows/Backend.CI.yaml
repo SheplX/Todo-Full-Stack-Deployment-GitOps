@@ -71,9 +71,9 @@ jobs:
         with:
           values_files: charts/values.yaml
           tag_keys: .backend.tag      
-          tag_value: ${{ steps.tag.outputs.VERSION }}
+          tag_value: ${{ env.VERSION }}
           commit_branch: ${{ github.ref }}
-          commit_tag: Todo-Main-Charts-V-${{ steps.tag.outputs.VERSION }}
+          commit_tag: Todo-Main-Charts-V-${{ env.VERSION }}
           commit_message: "Backend update: Tag '${{ env.VERSION }}' added"
           
       - name: Update Helm Chart Values at Stage
@@ -82,9 +82,9 @@ jobs:
         with:
           values_files: charts/values.yaml
           tag_keys: .backend.tag          
-          tag_value: ${{ steps.tag.outputs.VERSION }}
+          tag_value: ${{ env.VERSION }}
           commit_branch: ${{ github.ref }}
-          commit_tag: Todo-Stage-Charts-V-${{ steps.tag.outputs.VERSION }}
+          commit_tag: Todo-Stage-Charts-V-${{ env.VERSION }}
           commit_message: "Backend update: Tag '${{ env.VERSION }}' added"
 
       - name: Update Helm Chart Values at Dev
@@ -93,9 +93,9 @@ jobs:
         with:
           values_files: charts/values.yaml
           tag_keys: .backend.tag          
-          tag_value: ${{ steps.tag.outputs.VERSION }}
+          tag_value: ${{ env.VERSION }}
           commit_branch: ${{ github.ref }}
-          commit_tag: Todo-Dev-Charts-V-${{ steps.tag.outputs.VERSION }}
+          commit_tag: Todo-Dev-Charts-V-${{ env.VERSION }}
           commit_message: "Backend update: Tag '${{ env.VERSION }}' added"
 
       # - name: 'Updating Helm Charts values on branch main'
