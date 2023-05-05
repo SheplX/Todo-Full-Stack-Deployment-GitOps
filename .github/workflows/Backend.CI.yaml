@@ -61,7 +61,7 @@ jobs:
         run: |
           IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$BACKEND_IMAGE
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-          VERSION=$(echo "${{ github.sha }}" | cut -c1-7)
+          VERSION=$(echo ${{ github.sha }} | cut -c1-7)
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$VERSION
           docker tag $BACKEND_IMAGE $IMAGE_ID:$VERSION
@@ -73,7 +73,7 @@ jobs:
         with:
           values_files: charts/values.yaml
           tag_keys: .backend.tag      
-          tag_value: ${{ github.sha }}
+          tag_value: ${{ steps.tag.outputs.VERSION }}
           commit_branch: ${{ github.ref }}
           commit_tag: Todo-Main-Charts
           commit_message: Tag Backend:${{ steps.tag.outputs.VERSION }} Pumped
@@ -84,7 +84,7 @@ jobs:
         with:
           values_files: charts/values.yaml
           tag_keys: .backend.tag          
-          tag_value: ${{ github.sha }}
+          tag_value: ${{ steps.tag.outputs.VERSION }}
           commit_branch: ${{ github.ref }}
           commit_tag: Todo-Stage-Charts
           commit_message: Tag Backend:${{ steps.tag.outputs.VERSION }} Pumped
@@ -95,7 +95,7 @@ jobs:
         with:
           values_files: charts/values.yaml
           tag_keys: .backend.tag          
-          tag_value: ${{ github.sha }}
+          tag_value: ${{ steps.tag.outputs.VERSION }}
           commit_branch: ${{ github.ref }}
           commit_tag: Todo-Dev-Charts
           commit_message: Tag Backend:${{ steps.tag.outputs.VERSION }} Pumped
