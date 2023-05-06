@@ -9,19 +9,19 @@ metadata:
   name: "ingress-prod-{{ . }}" 
 spec:
   tls:
-    - hosts:
-        - {{ . | quote }}
-      secretName: "secret-prod-{{ . }}"
+  - hosts:
+      - {{ . | quote }}
+    secretName: "secret-prod-{{ . }}"
   rules:
-    - host: {{ . | quote }}
-      http:
-        paths:
-        - path: /
-          pathType: Prefix
-          backend:
-            service:
-              name: proxy
-              port: 80
-                name: http
-           {{- end }}
-           {{- end }}
+  - host: {{ . | quote }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: proxy
+            port: 
+              number: 80
+          {{- end }}
+          {{- end }}
