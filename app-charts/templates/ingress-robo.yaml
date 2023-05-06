@@ -3,16 +3,16 @@ kind: Ingress
 metadata:
 
   annotations:
-   kubernetes.io/ingress.class: nginx
-   nginx.ingress.kubernetes.io/proxy-buffer-size: "8k"
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-staging"
 
-  name: ingress-tls-redis-dev-test
+  name: greeting-ingress
 
 spec:
   tls:
   - hosts:
     - todo-dev-test.conix.ai
-    secretName: secret-le-prod-redis-dev-test
+    secretName: echo-tls
     
   
   rules:
