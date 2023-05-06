@@ -1,0 +1,16 @@
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+ {{- range .Values.ingress.tls }}
+  {{- range .hosts }}
+  name: "crt-prod-{{ . }}"
+spec:
+  secretName: "secret-prod-{{ . }}"
+  issuerRef:
+    name: "issuer-prod-{{ . }}"
+    kind: Issuer
+  commonName: "{{ . }}"
+  dnsNames:
+    - "{{ . }}"
+  {{- end }}
+{{- end }}
