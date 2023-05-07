@@ -1,22 +1,17 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-
+  name: example-ingress
   annotations:
-    kubernetes.io/ingress.class: "nginx"
-    cert-manager.io/cluster-issuer: "letsencrypt-staging"
-
-  name: greeting-ingress
-
+    cert-manager.io/issuer: "vault-issuer"
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
 spec:
   tls:
   - hosts:
-    - todo-dev-test.conix.ai
-    secretName: echo-tls
-    
-  
+    - www.dssdsdsdsd.com
+    secretName: example-com-tls
   rules:
-  - host: todo-dev-test.conix.ai
+  - host: www.dssdsdsdsd.com
     http:
       paths:
       - path: /
@@ -26,7 +21,3 @@ spec:
             name: proxy
             port: 
               number: 80
-
-
-
-
