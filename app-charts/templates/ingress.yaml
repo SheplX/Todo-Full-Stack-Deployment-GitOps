@@ -2,7 +2,9 @@ apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   {{- range .Values.ingress.tls }}
+   {{- range .hosts }}
   name: "letsencrypt-prod-{{ . }}"
+   {{- end }}
   {{- end }}
 spec:
   vault:
