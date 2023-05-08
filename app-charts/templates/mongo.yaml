@@ -7,7 +7,7 @@ spec:
   accessModes:
     - ReadWriteOnce
   capacity:
-    storage: {{ .Values.storage.size }}
+    storage: {{ .Values.persistent.storage.size }}
   persistentVolumeReclaimPolicy: Retain
   hostPath:
     path: "/data/mongodb-{{ . }}"
@@ -26,7 +26,7 @@ spec:
   {{- end }}
   resources:
     requests:
-      storage: {{ .Values.storage.size }}
+      storage: {{ .Values.persistent.storage.size }}
 ---
 apiVersion: apps/v1
 kind: Deployment
