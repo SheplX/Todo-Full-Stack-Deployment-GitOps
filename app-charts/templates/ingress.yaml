@@ -1,0 +1,59 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+ {{- range .Values.ingress.tls }}
+  {{- range .hosts }}
+  name: "letsencrypt-prod-{{ . }}"
+spec:
+  vault:
+    server: http://vault.vault.svc.cluster.local:8200
+    path: pki/sign/todo-dot-com
+    auth:
+      kubernetes:
+        mountPath: /v1/auth/kubernetes
+        role: issuer
+        secretRef:
+          name: issuer-token-todo
+          key: token
+         {{- end }}
+     {{- end }}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+ {{- range .Values.ingress.tls }}
+  {{- range .hosts }}
+  name: "crt-prod-{{ . }}"
+spec:
+  secretName: "secret-prod-{{ . }}"
+  issuerRef:
+    name: "letsencrypt-prod-{{ . }}"
+  commonName: "{{ . }}"
+  dnsNames:
+    - "{{ . }}"
+  {{- end }}
+{{- end }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+ {{- range .Values.ingress.tls }}
+  {{- range .hosts }}
+  name: "ingress-tls-{{ . }}" spec:
+  tls:
+  - hosts:
+      - {{ . | quote }}
+    secretName: "secret-prod-{{ . }}"
+  rules:
+  - host: {{ . | quote }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix  
+        backend:
+          service:
+            name: proxy
+            port: 
+              number: 8888
+        {{- end }}
+        {{- end }}
