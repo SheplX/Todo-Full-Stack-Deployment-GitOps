@@ -1,7 +1,5 @@
 storage:
   size: 0.3Gi
-branch:
-  name: stage
 ingress:
   host:
     - events.todo.com
