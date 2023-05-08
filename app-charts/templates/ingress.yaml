@@ -6,7 +6,7 @@ metadata:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: issuer-token-todo 
+  name: issuer-token-todo
   annotations:
     kubernetes.io/service-account.name: issuer
 type: kubernetes.io/service-account-token
@@ -15,7 +15,7 @@ apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   {{- range .Values.ingress.host }}
-  name: "letsencrypt-prod-{{ . }}"
+  name: "vault-issuer-{{ . }}"
   {{- end }}
 spec:
   vault:
@@ -26,18 +26,18 @@ spec:
         mountPath: /v1/auth/kubernetes
         role: issuer
         secretRef:
-          name: issuer-token-todo 
+          name: issuer-token-todo
           key: token
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
  {{- range .Values.ingress.host }}
-  name: "crt-prod-{{ . }}"
+  name: "vault-crt-{{ . }}"
 spec:
-  secretName: "secret-prod-{{ . }}"
+  secretName: "vault-secret-{{ . }}"
   issuerRef:
-    name: "letsencrypt-prod-{{ . }}"
+    name: "vault-issuer-{{ . }}"
   commonName: "{{ . }}"
   dnsNames:
     - "{{ . }}"
@@ -47,12 +47,12 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
  {{- range .Values.ingress.host }}
-  name: "ingress-tls-{{ . }}" 
+  name: "ingress-{{ . }}" 
 spec:
   tls:
   - hosts:
       - {{ . | quote }}
-    secretName: "secret-prod-{{ . }}"
+    secretName: "vault-secret-{{ . }}"
   rules:
   - host: {{ . | quote }}
     http:
