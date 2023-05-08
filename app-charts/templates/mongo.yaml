@@ -1,14 +1,15 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: pv-mongo
+  name: "pv-mongo-{{ .Values.branch.name }}"
 spec:
   accessModes:
     - ReadWriteOnce
   capacity:
-    storage: 0.3Gi
+    storage: {{ .Values.storage.size }}
+  persistentVolumeReclaimPolicy: Retain
   hostPath:
-    path: /data/mongodb
+    path: /data/mongodb-{{ .Values.branch.name }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -17,11 +18,11 @@ metadata:
 spec:
   storageClassName: ""
   accessModes:
-    - ReadWriteOnce 
-  volumeName: pv-mongo
+    - ReadWriteOnce
+  volumeName: "pv-mongo-{{ .Values.branch.name }}"
   resources:
     requests:
-      storage: 0.3Gi
+      storage: {{ .Values.storage.size }}
 ---
 apiVersion: apps/v1
 kind: Deployment
