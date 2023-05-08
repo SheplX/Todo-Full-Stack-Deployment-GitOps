@@ -28,7 +28,6 @@ spec:
         secretRef:
           name: issuer-token-todo 
           key: token
-        secretNa
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
