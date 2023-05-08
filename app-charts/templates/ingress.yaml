@@ -1,10 +1,8 @@
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
-  {{- range .Values.ingress.tls }}
-   {{- range .hosts }}
+  {{- range .Values.ingress.host }}
   name: "letsencrypt-prod-{{ . }}"
-   {{- end }}
   {{- end }}
 spec:
   vault:
@@ -21,8 +19,7 @@ spec:
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
- {{- range .Values.ingress.tls }}
-  {{- range .hosts }}
+ {{- range .Values.ingress.host }}
   name: "crt-prod-{{ . }}"
 spec:
   secretName: "secret-prod-{{ . }}"
@@ -31,14 +28,12 @@ spec:
   commonName: "{{ . }}"
   dnsNames:
     - "{{ . }}"
-  {{- end }}
 {{- end }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
- {{- range .Values.ingress.tls }}
-  {{- range .hosts }}
+ {{- range .Values.ingress.host }}
   name: "ingress-tls-{{ . }}" 
 spec:
   tls:
@@ -56,5 +51,4 @@ spec:
             name: proxy
             port: 
               number: 8888
-        {{- end }}
         {{- end }}
