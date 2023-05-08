@@ -1,7 +1,7 @@
-# ingress:
-#   tls:
-#     - hosts:
-#         - todo.devops.com
+ingress:
+  tls:
+    - hosts:
+        - events.todo.com
 backend:
   repository: ghcr.io/sheplx/todo-full-stack-deployment/backend
   tag: "02f1cb7"
