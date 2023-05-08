@@ -1,10 +1,9 @@
 ingress:
-  tls:
-    - hosts:
-        - events.todo.com
+  host:
+    - events.todo.com
 backend:
   repository: ghcr.io/sheplx/todo-full-stack-deployment/backend
-  tag: "02f1cb7"
+  tag: 02f1cb7
 frontend:     
   repository: ghcr.io/sheplx/todo-full-stack-deployment/frontend
   tag: d4fb2b4
