@@ -1,3 +1,16 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: issuer
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: issuer-token-todo 
+  annotations:
+    kubernetes.io/service-account.name: issuer
+type: kubernetes.io/service-account-token
+---
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
@@ -13,9 +26,9 @@ spec:
         mountPath: /v1/auth/kubernetes
         role: issuer
         secretRef:
-          name: issuer-token-todo
+          name: issuer-token-todo 
           key: token
-          namespace: default
+        secretNa
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
