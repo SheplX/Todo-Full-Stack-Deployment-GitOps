@@ -1,9 +1,9 @@
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
- {{- range .Values.ingress.tls }}
-  {{- range .hosts }}
+  {{- range .Values.ingress.tls }}
   name: "letsencrypt-prod-{{ . }}"
+  {{- end }}
 spec:
   vault:
     server: http://vault.vault.svc.cluster.local:8200
@@ -15,8 +15,7 @@ spec:
         secretRef:
           name: issuer-token-todo
           key: token
-         {{- end }}
-     {{- end }}
+
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
