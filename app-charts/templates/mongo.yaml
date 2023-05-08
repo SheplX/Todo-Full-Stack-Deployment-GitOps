@@ -3,6 +3,7 @@ kind: PersistentVolume
 metadata:
   {{- range .Values.ingress.host }}
   name: "pv-mongo-{{ . }}"
+  {{- end }}
 spec:
   accessModes:
     - ReadWriteOnce
@@ -10,8 +11,9 @@ spec:
     storage: {{ .Values.persistent.storage.size }}
   persistentVolumeReclaimPolicy: Retain
   hostPath:
+  {{- range .Values.ingress.host }}
     path: "/data/mongodb-{{ . }}"
-{{- end }}
+  {{- end }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
