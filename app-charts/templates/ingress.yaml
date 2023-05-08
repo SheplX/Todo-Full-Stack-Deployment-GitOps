@@ -15,7 +15,6 @@ spec:
         secretRef:
           name: issuer-token-todo
           key: token
-
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -38,7 +37,8 @@ kind: Ingress
 metadata:
  {{- range .Values.ingress.tls }}
   {{- range .hosts }}
-  name: "ingress-tls-{{ . }}" spec:
+  name: "ingress-tls-{{ . }}" 
+spec:
   tls:
   - hosts:
       - {{ . | quote }}
