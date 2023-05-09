@@ -8,9 +8,9 @@ ingress:
 backend:
   repository: ghcr.io/sheplx/todo-full-stack-deployment/backend
   tag: 02f1cb7
-frontend:     
+frontend:
   repository: ghcr.io/sheplx/todo-full-stack-deployment/frontend
-  tag: d4fb2b4
+  tag: fc9ebf7
 spec:
   replicas: 3
 DBname:
