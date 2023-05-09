@@ -10,7 +10,7 @@ backend:
   tag: "5707132"
 frontend:
   repository: ghcr.io/sheplx/todo-full-stack-deployment/frontend
-  tag: d4fb2b4
+  tag: e7c8c27
 spec:
   replicas: 3
 DBname:

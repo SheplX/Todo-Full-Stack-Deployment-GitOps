@@ -1,6 +1,6 @@
 # Todo app
 
-![Version: 0.1.96](https://img.shields.io/badge/Version-0.1.96-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.16.0](https://img.shields.io/badge/AppVersion-1.16.0-informational?style=flat-square)
+![Version: 0.1.97](https://img.shields.io/badge/Version-0.1.97-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.16.0](https://img.shields.io/badge/AppVersion-1.16.0-informational?style=flat-square)
 
 Todo app Helm chart
 
@@ -12,7 +12,7 @@ Todo app Helm chart
 | backend.repository | string | `"ghcr.io/sheplx/todo-full-stack-deployment/backend"` |  |
 | backend.tag | string | `"5707132"` |  |
 | frontend.repository | string | `"ghcr.io/sheplx/todo-full-stack-deployment/frontend"` |  |
-| frontend.tag | string | `"d4fb2b4"` |  |
+| frontend.tag | string | `"e7c8c27"` |  |
 | ingress.host[0] | string | `"events.todo.com"` |  |
 | persistent.storage.size | string | `"0.3Gi"` |  |
 | spec.replicas | int | `3` |  |
