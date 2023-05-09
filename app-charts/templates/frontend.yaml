@@ -1,20 +1,20 @@
-# apiVersion: external-secrets.io/v1beta1
-# kind: ExternalSecret
-# metadata:
-#   name: regcred
-# spec:
-#   refreshInterval: "0"
-#   secretStoreRef:
-#     name: vault
-#     kind: ClusterSecretStore
-#   target:
-#     name: regcred
-#     template:
-#       type: kubernetes.io/dockerconfigjson
-#     creationPolicy: Owner
-#   dataFrom:
-#   - extract:
-#       key: secrets/regcred
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: regcred
+spec:
+  refreshInterval: "0"
+  secretStoreRef:
+    name: vault
+    kind: ClusterSecretStore
+  target:
+    name: regcred
+    template:
+      type: kubernetes.io/dockerconfigjson
+    creationPolicy: Owner
+  dataFrom:
+  - extract:
+      key: secrets/regcred
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -41,8 +41,8 @@ spec:
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
-      # imagePullSecrets:
-      # - name: regcred
+      imagePullSecrets:
+      - name: regcred
 ---
 apiVersion: v1
 kind: Service
