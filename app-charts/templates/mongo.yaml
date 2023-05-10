@@ -1,14 +1,19 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: pv-mongo
+  {{- range .Values.ingress.host }}
+  name: "pv-mongo-{{ . }}"
+  {{- end }}
 spec:
   accessModes:
     - ReadWriteOnce
   capacity:
-    storage: 0.3Gi
+    storage: {{ .Values.persistent.storage.size }}
+  persistentVolumeReclaimPolicy: Retain
   hostPath:
-    path: /data/mongodb
+  {{- range .Values.ingress.host }}
+    path: "/data/mongodb-{{ . }}"
+  {{- end }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -17,11 +22,13 @@ metadata:
 spec:
   storageClassName: ""
   accessModes:
-    - ReadWriteOnce 
-  volumeName: pv-mongo
+    - ReadWriteOnce
+  {{- range .Values.ingress.host }}
+  volumeName: "pv-mongo-{{ . }}"
+  {{- end }}
   resources:
     requests:
-      storage: 0.3Gi
+      storage: {{ .Values.persistent.storage.size }}
 ---
 apiVersion: apps/v1
 kind: Deployment

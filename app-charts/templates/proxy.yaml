@@ -89,5 +89,5 @@ spec:
   ports:
   - name: proxy
     protocol: TCP
-    port: 80
+    port: 8888
     targetPort: 80
