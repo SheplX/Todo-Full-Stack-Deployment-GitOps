@@ -97,7 +97,13 @@ AngularJS, the frontend framework, retrieves the necessary HTML, CSS, and JavaSc
 
 ![cert](./screenshots/cert.png)
 
-- Lets check if External-secrets was able to connect with the vault
+- After deploying the apps, if we checked the Vault/PKI secret path, we can see the requested certificates for each subdomain under the registered domain
+
+![cert-1](./screenshots/cert-1.png)
+![cert-2](./screenshots/cert-2.png)
+![cert-3](./screenshots/cert-3.png)
+
+- Let's check if External-secrets was able to connect with the vault
 
 ![ex](./screenshots/ex.png)
 ![ex-1](./screenshots/ex-1.png)
@@ -119,12 +125,32 @@ AngularJS, the frontend framework, retrieves the necessary HTML, CSS, and JavaSc
 ![new-1](./screenshots/new-1.png)
 ![new-2](./screenshots/new-2.png)
 
+- we can check the pod's logs to see if the apps working fine.
+
+![pod](./screenshots/pod.png)
+![pod-1](./screenshots/pod-1.png)
+![pod-2](./screenshots/pod-2.png)
+
+- From DB logs we can see that backend started to connect with the DB too
+
+![pod-3](./screenshots/pod-3.png)
+
+
+
+- Let's browse the main app to check if `HTTPS` protocol works. using  `evemts.todo.com` we can see from page resources that it accepts the URL with `HTTPS` protocol and uses the `443` port. returns a status code of 200.
+
+![app](./screenshots/app.png)
+
+- From the terminal, using curl
+
+![cert-4](./screenshots/cert-4.png)
+
 - Let's test the GitHub actions with some cases. Assume that I am a developer For example, I will make a little edit on file and commit it on stage, backend folder.
 
 ![test](./screenshots/test.png)
 ![test-1](./screenshots/test-1.png)
 
-- From the action section, we can see that the backend workflow triggered the new commit `5707132` pushed to the stage branch and started the pipeline
+- From the action section, we can see that the backend workflow triggered the new commit `5707132` pushed it to the stage branch and started the pipeline
 
 ![back](./screenshots/back.png)
 
@@ -132,10 +158,69 @@ AngularJS, the frontend framework, retrieves the necessary HTML, CSS, and JavaSc
 
 ![back-1](./screenshots/back-1.png)
 
-- Lets check the pipeline steps
+- Let's check the pipeline steps:
     - Job 1 - will query all the changed files inside backend folder
     ![back-2](./screenshots/back-2.png)
     - Job 2 - according to the previous step, it will print the changed files. in my case, I only made some changes on `backend/tsconfig.json` file.
     ![back-3](./screenshots/back-3.png)
-    - Job 3 - according to the previous step, it will print the changed files. in my case, I only made some changes on `backend/tsconfig.json` file.
-    ![back-3](./screenshots/back-3.png)
+    - Job 3 - because the backend workflow is the current running pipeline, it will build the backend image.
+    ![back-4](./screenshots/back-4.png)
+    - Job 4 - image scanning using trivy scanner. I set it with all security levels Critical, medium, and low. content-type is a table because I don't want a report file, I also disable the option of stopping the pipeline if the security lvl is medium ~ higher just for demonstration but sure in production it must be enabled.
+    ![back-5](./screenshots/back-5.png)
+    ![back-6](./screenshots/back-6.png)
+    - Job 5 - login to my private registry.
+    ![back-7](./screenshots/back-7.png)
+    - Job 6 - pushing the backend image to the GitHub package registry using a custom tag. For the tag I used GitHub sha tag and made it shorter with 7 digits only for better commit contents and set the repo name to lowercase for being accepted.
+    ![back-8](./screenshots/back-8.png)
+    - Job 7 - the important step, once the new image has been pushed to the registry, this job will catch the image tag and will check the current branch according to if condition. Because the commit has been added to the stage branch and the pipeline run from it, it will detect the stage branch and update the backend image tag value on the app charts values file. it also will release a new helm chart package on the tags section configured with the branch name and the tag version.
+    ![back-9](./screenshots/back-9.png)
+    ![back-10](./screenshots/back-10.png)
+    ![back-11](./screenshots/back-11.png)
+
+- If we checked the stage app on Argo, we will see that it detected the new tag updated and asked me to sync for updating the app, I closed the auto sync because I would like to review the changes first before they get applied.
+
+![argo-3](./screenshots/argo-3.png)
+
+- We can see the new tag changes from app diff
+
+![argo-4](./screenshots/argo-4.png)
+
+- Now we can sync for letting the new image be pulled.
+
+![argo-5](./screenshots/argo-5.png)
+![argo-6](./screenshots/argo-6.png)
+![argo-7](./screenshots/argo-7.png)
+
+- On GitHub
+
+![git](./screenshots/git.png)
+![git-1](./screenshots/git-1.png)
+
+- And same all these steps for Frontend Workflow.
+
+# Application use cases & Mongo Express
+
+- The application stores any count of events to MongoDB, with some info about each event.
+
+![todo-1](./screenshots/todo-1.png)
+![todo](./screenshots/todo.png)
+
+
+- I deployed Mongo Express with the stack configured to connect with the DB service. it can help us to check the saved events inside Mongo and control on it.
+
+![express](./screenshots/express.png)
+![express-1](./screenshots/express-1.png)
+
+- Another way, without Express, we can ssh into MongoDB internal service using Mongo shell.
+
+![express-2](./screenshots/express-2.png)
+
+- We are already on test DB, we need to check event collections inside test DB.
+
+![express-3](./screenshots/express-3.png)
+![express-4](./screenshots/express-4.png)
+![express-5](./screenshots/express-5.png)
+
+- We can use the DNS as API too
+
+![api](./screenshots/api.png)
