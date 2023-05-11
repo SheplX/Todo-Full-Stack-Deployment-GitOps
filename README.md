@@ -5,10 +5,10 @@ Introducing a full deployment cycle for events app deployed on Kubernetes using 
 
 # Application components
 
-- MongoDB - A NoSQL database.
-- ExpressJS -  A backend web application framework for NodeJS.
-- Angular - A JavaScript-based front-end web development framework for building dynamic, single-page web applications.
-- NodeJS - A JavaScript runtime environment that enables running JavaScript code outside the browser, among other things.
+- `MongoDB` - A NoSQL database.
+- `ExpressJS` -  A backend web application framework for NodeJS.
+- `Angular` - A JavaScript-based front-end web development framework for building dynamic, single-page web applications.
+- `NodeJS` - A JavaScript runtime environment that enables running JavaScript code outside the browser, among other things.
 
 how the different components of the app might work together:
 
@@ -19,7 +19,7 @@ AngularJS, the frontend framework, retrieves the necessary HTML, CSS, and JavaSc
 - The back-end server sends a response to the frontend, which AngularJS receives and uses to update the view.
 - When a user creates a new event, AngularJS sends a POST request to the backend server, which Express.js receives and processes. Express.js stores the new event in the MongoDB database.
 - The backend server sends a confirmation response to the front-end, which AngularJS receives and uses to update the view and display the new event.
-- Node.js, the JavaScript runtime, handles the server-side logic for the application and allows for real-time updates. This includes running the Express.js server, handling real-time updates using WebSockets, and handling any other server-side tasks.Node-based Express server.
+- Node.js, the JavaScript runtime, handles the server-side logic for the application and allows for real-time updates. This includes running the Express.js server, handling real-time updates using WebSockets, and handling any other server-side tasks. Node-based Express server.
 
 # Helm setup
 - Helm is always the best choice for me to deploy any component I need inside  the cluster with customized values, during the project, I used some helm packages I would like to describe them:
@@ -27,7 +27,7 @@ AngularJS, the frontend framework, retrieves the necessary HTML, CSS, and JavaSc
         - for being able to deploy issuer & certificate manifests that are required for ingress to be secured with HTTPS protocol.
     - Hashicorp-Vault 
         - for deploying the secrets required by each app in my case I stored the private registry credentials that are required for each container to access & pull the images.
-        - issuer reference for creating a valid certificate for ingress with custom domain `todo.com`.
+        - issuer reference for creating a valid certificate for ingress with the custom domain `todo.com`.
     - External-secrets
         - for handling the secrets inside each namespace, I used it to deploy a secret store connected with the vault to retrieve any secrets required by any application on any namespace.
     - Argo
@@ -37,9 +37,9 @@ AngularJS, the frontend framework, retrieves the necessary HTML, CSS, and JavaSc
 
 # GitHub actions cycle
 - The repo has 3 branches: `Main` - `Stage` - `Dev` Each branch will have 3 folders:
-    - Backend - the Backend code of the application.
-    - Frontend - the Frontend code of the application.
-    - App-charts - the application manifests are built with custom helm charts.
+    - `Backend` - the Backend code of the application.
+    - `Frontend` - the Frontend code of the application.
+    - `App-charts` - the application manifests are built with custom helm charts.
 - I built a custom workflow for each folder to trigger any commits that will be pushed by developers.
 - Let's say that we have 2 teams working on the app stack, the Backend team and the frontend team.
 - Each team tries to release a new feature on the dev branch the backend team tries to release a feature on the Backend code and the same for the frontend team.
@@ -67,7 +67,7 @@ AngularJS, the frontend framework, retrieves the necessary HTML, CSS, and JavaSc
     - ability to scale up/down the replica number for each app.
     - ability to set up the database service name for the Mongo-express web app so it can connect to the right database and visualize it.
     - ability to set up the image repository & tag name for front & backend deployment. this will be customized dynamically by GitHub actions.
-- The great point here that Argo supports the values setup during the app deployment. this is great for some options like vault tokens or even any another credentials.
+- The great point here is that Argo supports the values setup during the app deployment. this is great for some options like vault tokens or even any other credential.
 
 # Full cycle test
 
@@ -76,7 +76,7 @@ AngularJS, the frontend framework, retrieves the necessary HTML, CSS, and JavaSc
 
 ![vault](./screenshots/vault.png)
 
-- Setting up the PKI secrets engine with a custom role to generate dynamic certificates for a custom domain, in my case i added `todo.com` as a custom domain. - this role is configured with a custom service account authorized with PKI to request the certificates with the issuer.
+- Setting up the PKI secrets engine with a custom role to generate dynamic certificates for a custom domain, in my case I added `todo.com` as a custom domain. - this role is configured with a custom service account authorized with PKI to request the certificates with the issuer.
 
 ![vault-1](./screenshots/vault-1.png)
 
@@ -88,7 +88,7 @@ AngularJS, the frontend framework, retrieves the necessary HTML, CSS, and JavaSc
 ![argo](./screenshots/argo.png)
 ![argo-2](./screenshots/argo-2.png)
 
-- After deploying each app, i can check the ingress if it got the certificates and the issuer was able to connect & authenticate with vault or not.
+- After deploying each app, I can check the ingress if it got the certificates and if the issuer was able to connect & authenticate with the vault or not.
 - From issuer pod
 
 ![issuer](./screenshots/issuer.png)
@@ -137,7 +137,7 @@ AngularJS, the frontend framework, retrieves the necessary HTML, CSS, and JavaSc
 
 
 
-- Let's browse the main app to check if `HTTPS` protocol works. using  `evemts.todo.com` we can see from page resources that it accepts the URL with `HTTPS` protocol and uses the `443` port. returns a status code of 200.
+- Let's browse the main app to check if `HTTPS` protocol works. using  `events.todo.com` we can see from page resources that it accepts the URL with `HTTPS` protocol and uses the `443` port. returns a status code of 200.
 
 ![app](./screenshots/app.png)
 
@@ -224,3 +224,7 @@ AngularJS, the frontend framework, retrieves the necessary HTML, CSS, and JavaSc
 - We can use the DNS as API too
 
 ![api](./screenshots/api.png)
+
+# Ref
+
+- https://github.com/dockersamples/events
