@@ -1,4 +1,4 @@
-name: TODO-FRONTEND-CI
+name: TODO-BACKEND-CI
 on:
   push:
     paths:
