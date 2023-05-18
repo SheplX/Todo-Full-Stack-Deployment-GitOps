@@ -76,7 +76,8 @@ AngularJS, the frontend framework, retrieves the necessary HTML, CSS, and JavaSc
 
 ![vault](./screenshots/vault.png)
 
-- Setting up the PKI secrets engine with a custom role to generate dynamic certificates for a custom domain, in my case I added `todo.com` as a custom domain. - this role is configured with a custom service account authorized with PKI to request the certificates with the issuer.
+- Setting up the PKI secrets engine with a custom role to generate dynamic certificates for a custom domain, in my case I added `todo.com` as a custom domain.
+- this role is configured with a custom service account authorized with PKI to request the certificates with the issuer.
 
 ![vault-1](./screenshots/vault-1.png)
 
